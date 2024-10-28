@@ -3,35 +3,73 @@ use bevy::input::common_conditions::*;
 
 use bevy_mod_raycast::prelude::*;
 
+use calc_sim::{add, subtract, multiply, divide};
+use calc_sim::FlexInput;
+
 use calc_sim::cam_ui::setup_ui;
 use calc_sim::cam_ui::CameraUi;
+
 use calc_sim::cam_world::{pan_orbit_camera, spawn_3d_camera};
 use calc_sim::cam_world::{CameraWorld, PanOrbitState};
+
 use calc_sim::game_env::spawn_gltf;
 use calc_sim::game_env::Interactable;
 
-/*
-Index Notes for Calc Interactions:
-Calculator Body:    39
-Calculator Screen:  64
-Button Sum:         42
-Button Add:         43
-Button Subtract:    44
-Button Multiply:    45
-Button Divide:      46
-Button Clear:       48
-Button Decimal:     50
-Button Num 0:       49
-Button Num 1:       52
-Button Num 2:       53
-Button Num 3:       54
-Button Num 4:       56
-Button Num 5:       57
-Button Num 6:       58
-Button Num 7:       60
-Button Num 8:       61
-Button Num 9:       62
-*/
+#[derive(Debug)]
+enum CalcButtons {
+    ButtonSum,
+    ButtonAdd,
+    ButtonSubtract,
+    ButtonMultiply,
+    ButtonDivide,
+    ButtonClear,
+    ButtonDecimal,
+    ButtonNum0,
+    ButtonNum1,
+    ButtonNum2,
+    ButtonNum3,
+    ButtonNum4,
+    ButtonNum5,
+    ButtonNum6,
+    ButtonNum7,
+    ButtonNum8,
+    ButtonNum9,
+    NoneButton_Body,
+    NoneButton_Screen,
+    NoneButton_LightPanel,
+}
+
+impl CalcButtons {
+    fn from_index(index: u32) -> Option<CalcButtons> {
+        match index {
+            42 => Some(CalcButtons::ButtonSum),
+            43 => Some(CalcButtons::ButtonAdd),
+            44 => Some(CalcButtons::ButtonSubtract),
+            45 => Some(CalcButtons::ButtonMultiply),
+            46 => Some(CalcButtons::ButtonDivide),
+            48 => Some(CalcButtons::ButtonClear),
+            50 => Some(CalcButtons::ButtonDecimal),
+            49 => Some(CalcButtons::ButtonNum0),
+            52 => Some(CalcButtons::ButtonNum1),
+            53 => Some(CalcButtons::ButtonNum2),
+            54 => Some(CalcButtons::ButtonNum3),
+            56 => Some(CalcButtons::ButtonNum4),
+            57 => Some(CalcButtons::ButtonNum5),
+            58 => Some(CalcButtons::ButtonNum6),
+            60 => Some(CalcButtons::ButtonNum7),
+            61 => Some(CalcButtons::ButtonNum8),
+            62 => Some(CalcButtons::ButtonNum9),
+            39 => Some(CalcButtons::NoneButton_Body),
+            64 => Some(CalcButtons::NoneButton_Screen),
+            65 => Some(CalcButtons::NoneButton_LightPanel),
+            _ => None, // Handle invalid index
+        }
+    }
+
+    fn button_info(&self) {
+        info!("Button Clicked: {:?}", self);
+    }
+}
 
 fn main() {
     App::new()
@@ -123,9 +161,15 @@ fn fire_ray(
     for (entity, intersection) in hits {
         if Some(interactable_query.get(*entity)).is_some() {
             // This entity has an Interactable component
-            info!("Clicked on entity: {:?}", entity.index());
-            
-            // Perform your custom logic here, such as triggering an event
+            // info!("Clicked on entity: {:?}", entity.index());
+
+            let button_index = entity.index();
+
+            if let Some(button) = CalcButtons::from_index(button_index) {
+                button.button_info(); // Call the method to log which button was clicked
+            } else {
+                warn!("Unknown button index: {}", button_index);
+            }
         }
     }
 }
