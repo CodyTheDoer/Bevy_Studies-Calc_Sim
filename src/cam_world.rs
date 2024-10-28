@@ -3,6 +3,17 @@ use bevy::prelude::*;
 
 use std::f32::consts::{FRAC_PI_2, PI, TAU};
 
+pub fn spawn_3d_camera(mut commands: Commands) {
+    let mut camera = PanOrbitCameraBundle::default();
+    // Position our camera using our component,
+    // not Transform (it would get overwritten)
+    camera.state.center = Vec3::new(0.0, 0.0, 0.0);
+    camera.state.radius = 20.0;
+    camera.state.pitch = -55.0f32.to_radians();
+    camera.state.yaw = 0.0f32.to_radians();
+    commands.spawn(camera);
+}
+
 // Bundle to spawn our custom camera easily
 #[derive(Bundle, Default)]
 pub struct PanOrbitCameraBundle {
@@ -224,15 +235,4 @@ pub fn pan_orbit_camera(
             transform.translation = state.center + transform.back() * state.radius;
         }
     }
-}
-
-pub fn spawn_3d_camera(mut commands: Commands) {
-    let mut camera = PanOrbitCameraBundle::default();
-    // Position our camera using our component,
-    // not Transform (it would get overwritten)
-    camera.state.center = Vec3::new(0.0, 0.0, 0.0);
-    camera.state.radius = 20.0;
-    camera.state.pitch = -30.0f32.to_radians();
-    camera.state.yaw = 0.0f32.to_radians();
-    commands.spawn(camera);
 }

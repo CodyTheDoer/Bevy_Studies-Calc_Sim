@@ -2,7 +2,7 @@ use bevy::{color::palettes::css::*, sprite::Anchor, text::{BreakLineOn, Text2dBo
 use bevy::prelude::*;
 
 // UI with direct spawn
-pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+pub fn setup_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
     let font = asset_server.load("fonts/MatrixtypeDisplay-KVELZ.ttf");
     let text_style = TextStyle {
         font: font.clone(),
