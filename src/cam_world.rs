@@ -3,6 +3,8 @@ use bevy::prelude::*;
 
 use std::f32::consts::{FRAC_PI_2, PI, TAU};
 
+use bevy_mod_raycast::prelude::*;
+
 #[derive(Component)]
 pub struct CameraWorld;
 
@@ -14,8 +16,10 @@ pub fn spawn_3d_camera(mut commands: Commands) {
     camera.state.radius = 20.0;
     camera.state.pitch = -55.0f32.to_radians();
     camera.state.yaw = 0.0f32.to_radians();
-    commands.spawn((camera, CameraWorld));
-}
+    commands.spawn((
+        camera,
+        CameraWorld,
+    ));}
 
 // Bundle to spawn our custom camera easily
 #[derive(Bundle, Default)]
