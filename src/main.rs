@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-// use bevy::reflect::TypePath;
+
 use calc_sim::cam_ui::setup;
 use calc_sim::cam_world::{pan_orbit_camera, spawn_3d_camera};
 use calc_sim::cam_world::PanOrbitState;

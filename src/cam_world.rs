@@ -1,7 +1,5 @@
 use bevy::input::mouse::{MouseMotion, MouseScrollUnit, MouseWheel};
-use bevy::prelude::{
-    Bundle, ButtonInput, Camera3dBundle, Commands, Component, DetectChanges, EulerRot, EventReader, KeyCode, Quat, Query, Res, Transform, Vec2, Vec3
-};
+use bevy::prelude::*;
 
 use std::f32::consts::{FRAC_PI_2, PI, TAU};
 
@@ -186,7 +184,7 @@ pub fn pan_orbit_camera(
         if total_orbit != Vec2::ZERO {
             any = true;
             state.yaw += total_orbit.x;
-            state.pitch += total_orbit.y;
+            state.pitch -= total_orbit.y;
             // wrap around, to stay between +- 180 degrees
             if state.yaw > PI {
                 state.yaw -= TAU; // 2 * PI

@@ -1,11 +1,5 @@
-use bevy::render::camera::ScalingMode;
-use bevy::render::render_resource::*;
-use bevy::{
-    color::palettes::css::*,
-    prelude::*,
-    sprite::Anchor,
-    text::{BreakLineOn, Text2dBounds},
-};
+use bevy::{color::palettes::css::*, sprite::Anchor, text::{BreakLineOn, Text2dBounds}};  
+use bevy::prelude::*;
 
 // UI with direct spawn
 pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
@@ -22,7 +16,7 @@ pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     };
 
     // UI Camera (2D)
-    let mut my_2d_camera_bundle = Camera2dBundle {
+    let my_2d_camera_bundle = Camera2dBundle {
         camera: Camera {
             order: 1, // Render on top of the 3D scene
             ..default()
