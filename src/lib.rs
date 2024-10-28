@@ -6,21 +6,21 @@ pub trait FlexInput {
     fn to_f64(self) -> f64;
 }
 
-impl FlexInput for usize {
-    fn to_f64(self) -> f64 {
-        self as f64
-    }
-}
-
 impl FlexInput for f64 {
     fn to_f64(self) -> f64 {
         self
     }
 }
 
+impl FlexInput for usize {
+    fn to_f64(self) -> f64 {
+        self as f64
+    }
+}
+
 impl FlexInput for u32 {
     fn to_f64(self) -> f64 {
-        self
+        self as f64
     }
 }
 
