@@ -1,6 +1,9 @@
 use bevy::{color::palettes::css::*, sprite::Anchor, text::{BreakLineOn, Text2dBounds}};  
 use bevy::prelude::*;
 
+#[derive(Component)]
+pub struct CameraUi;
+
 // UI with direct spawn
 pub fn setup_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
     let font = asset_server.load("fonts/MatrixtypeDisplay-KVELZ.ttf");
@@ -16,14 +19,17 @@ pub fn setup_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
     };
 
     // UI Camera (2D)
-    let my_2d_camera_bundle = Camera2dBundle {
-        camera: Camera {
-            order: 1, // Render on top of the 3D scene
+    commands.spawn((
+        Camera2dBundle {
+            transform: Transform::from_xyz(1000.0, 1000.0, 0.0),
+            camera: Camera {
+                order: 1, // Render on top of the 3D scene
+                ..default()
+                },
             ..default()
         },
-        ..default()
-    };
-    commands.spawn(my_2d_camera_bundle);
+        CameraUi,
+    ));
 
     // Create a screen-sized UI node as a container
     commands.spawn(NodeBundle {
