@@ -243,3 +243,38 @@ pub fn pan_orbit_camera(
         }
     }
 }
+
+pub fn draw_cursor(
+    mut raycast: Raycast,
+    camera_query: Query<(&Camera, &GlobalTransform), With<CameraWorld>>, // Only query for the CameraWorld    
+    windows: Query<&Window>,
+    mut gizmos: Gizmos,
+) {    
+    let (camera, camera_transform) = match camera_query.get_single() {
+        Ok(result) => result,
+        Err(_) => {
+            warn!("No CameraWorld found or multiple CameraWorlds detected.");
+            return;
+        },
+    };
+
+    let Some(cursor_position) = windows.single().cursor_position() else {
+        return;
+    };
+
+    // Calculate a ray pointing from the camera into the world based on the cursor's position.
+    let Some(ray) = camera.viewport_to_world(camera_transform, cursor_position) else {
+        return;
+    };
+
+    let hits = raycast.cast_ray(ray, &RaycastSettings::default());
+
+    if let Some((_, intersection)) = hits.first() {
+        // Get the intersection point.
+        let point = intersection.position();
+
+        // Draw a circle at the intersection point using Gizmos (just above the surface).
+        let up = Dir3::Y; 
+        gizmos.circle(point + up * 0.05, up, 0.2, Color::WHITE);
+    }
+}
