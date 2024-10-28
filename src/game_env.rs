@@ -4,7 +4,7 @@ use bevy::ecs::event::EventReader;
 use bevy_mod_raycast::prelude::*;
 
 use crate::cam_world::CameraWorld;
-
+use crate::{SumCurrent, SumVariable};
 #[derive(Component)]
 pub struct Interactable; 
 
@@ -47,9 +47,9 @@ pub enum CalcButtons {
     Num7,
     Num8,
     Num9,
-    NoneButton_Body,
-    NoneButton_Screen,
-    NoneButton_LightPanel,
+    NoneButtonBody,
+    NoneButtonScreen,
+    NoneButtonLightPanel,
 }
 
 impl CalcButtons {
@@ -72,9 +72,9 @@ impl CalcButtons {
             60 => Some(CalcButtons::Num7),
             61 => Some(CalcButtons::Num8),
             62 => Some(CalcButtons::Num9),
-            39 => Some(CalcButtons::NoneButton_Body),
-            64 => Some(CalcButtons::NoneButton_Screen),
-            65 => Some(CalcButtons::NoneButton_LightPanel),
+            39 => Some(CalcButtons::NoneButtonBody),
+            64 => Some(CalcButtons::NoneButtonScreen),
+            65 => Some(CalcButtons::NoneButtonLightPanel),
             _ => None, // Handle invalid index
         }
     }
@@ -89,6 +89,8 @@ pub fn fire_ray(
     camera_query: Query<(&Camera, &GlobalTransform), With<CameraWorld>>, // Only query for the CameraWorld    
     windows: Query<&Window>,
     interactable_query: Query<Entity, With<Interactable>>,
+    mut sum: ResMut<SumCurrent>,
+    mut var: ResMut<SumVariable>,
 ) {    
     let (camera, camera_transform) = match camera_query.get_single() {
         Ok(result) => result,
@@ -120,9 +122,83 @@ pub fn fire_ray(
 
             if let Some(button) = CalcButtons::from_index(button_index) {
                 button.button_info(); // Call the method to log which button was clicked
-            } else {
-                warn!("Unknown button index: {}", button_index);
-            }
+                match button {
+                    CalcButtons::Sum => {
+                        info!("sum: {}", sum.sum);
+                        info!("var: {:?}", var.var);
+                        info!("decimal index: {}", var.decimal_index);
+                        var.review();
+                    },
+                    CalcButtons::Clear => {
+                        // Assuming sum has a method to reset to zero
+                        // sum.zero();
+                        info!("Clear");
+                    },
+                    CalcButtons::Decimal => {
+                        var.decimal();
+                    },
+                    CalcButtons::Add => {
+                        // Assuming there is an addition operation on `sum` involving `var`
+                        // sum.add(var);
+                        info!("Add");
+                    },
+                    CalcButtons::Subtract => {
+                        // sum.subtract(var);
+                        info!("Subtract");
+                    },
+                    CalcButtons::Multiply => {
+                        // sum.multiply(var);
+                        info!("Multiply");
+                    },
+                    CalcButtons::Divide => {
+                        // sum.divide(var);
+                        info!("Divide");
+                    },
+                    CalcButtons::Num0 => {
+                        var.push(0);
+                    },
+                    CalcButtons::Num1 => {
+                        var.push(1);
+                    },
+                    CalcButtons::Num2 => {
+                        var.push(2);
+                    },
+                    CalcButtons::Num3 => {
+                        var.push(3);
+                    },
+                    CalcButtons::Num4 => {
+                        var.push(4);
+                    },
+                    CalcButtons::Num5 => {
+                        var.push(5);
+                    },
+                    CalcButtons::Num6 => {
+                        var.push(6);
+                    },
+                    CalcButtons::Num7 => {
+                        var.push(7);
+                    },
+                    CalcButtons::Num8 => {
+                        var.push(8);
+                    },
+                    CalcButtons::Num9 => {
+                        var.push(9);
+                    },
+                    CalcButtons::NoneButtonBody => {
+                        info!("NoneButtonBody");
+                    },
+                    CalcButtons::NoneButtonScreen => {
+                        info!("NoneButtonScreen");
+                    },
+                    CalcButtons::NoneButtonLightPanel => {
+                        info!("NoneButtonLightPanel");
+                    },
+                    _ => {
+                        // Handle invalid button case, if needed
+                        info!("Invalid button press");
+                    },
+                }
+            } 
         }
     }
 }

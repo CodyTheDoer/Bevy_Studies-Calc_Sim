@@ -1,3 +1,5 @@
+use bevy::prelude::*;
+
 pub mod cam_ui;
 pub mod cam_world;
 pub mod game_env;
@@ -24,32 +26,102 @@ impl FlexInput for u32 {
     }
 }
 
-pub fn add<T: FlexInput, U: FlexInput>(left: T, right: U) -> f64 {
-    let conv_left = left.to_f64();
-    let conv_right = right.to_f64();
-
-    conv_left + conv_right
+impl FlexInput for i32 {
+    fn to_f64(self) -> f64 {
+        self as f64
+    }
 }
 
-pub fn subtract<T: FlexInput, U: FlexInput>(left: T, right: U) -> f64 {
-    let conv_left = left.to_f64();
-    let conv_right = right.to_f64();
-
-    conv_left - conv_right
+#[derive(Resource)]
+pub struct SumVariable {
+    pub var: Vec<i32>,
+    pub decimal_index: i32,
 }
 
-pub fn multiply<T: FlexInput, U: FlexInput>(left: T, right: U) -> f64 {
-    let conv_left = left.to_f64();
-    let conv_right = right.to_f64();
+impl SumVariable {
+    pub fn new() -> Self {
+        let var: Vec<i32> = Vec::new();
+        let decimal_index: i32 = 0;
+        SumVariable {
+            var,
+            decimal_index,
+        }
+    }
 
-    conv_left * conv_right
+    pub fn review(&self) {
+        info!("{:?}", self.var);
+    }
+
+    pub fn push(&mut self, input: i32) {
+        self.var.push(input);
+    }
+
+    pub fn decimal(&mut self) {
+        let len: i32 = self.var.len() as i32;
+        self.decimal_index = len;
+    }
 }
 
-pub fn divide<T: FlexInput, U: FlexInput>(left: T, right: U) -> f64 {
-    let conv_left = left.to_f64();
-    let conv_right = right.to_f64();
+#[derive(Debug, Resource)]
+pub struct SumCurrent {
+    pub sum: f64,
+}
 
-    conv_left / conv_right
+impl SumCurrent {
+    pub fn new() -> Self {
+        let sum: f64 = 0.0;
+        SumCurrent{
+            sum,
+        }
+    }
+
+    pub fn new_from<T: FlexInput>(input: T) -> Self {
+        let sum: f64 = input.to_f64();
+        SumCurrent{
+            sum,
+        }
+    }
+
+    pub fn zero(&self) -> Self {
+        let sum: f64 = 0.0;
+        SumCurrent{
+            sum,
+        }
+    }
+
+    pub fn add<T: FlexInput>(&mut self, input: T) -> Self {
+        let sum: f64 = self.sum + input.to_f64();
+        SumCurrent{
+            sum,
+        }
+    }
+    
+    pub fn subtract<T: FlexInput>(&mut self, input: T) -> Self {
+        let sum: f64 = self.sum - input.to_f64();
+        SumCurrent{
+            sum,
+        }
+    }
+    
+    pub fn multiply<T: FlexInput>(&mut self, input: T) -> Self {
+        let sum: f64 = self.sum * input.to_f64();
+        SumCurrent{
+            sum,
+        }
+    }
+    
+    pub fn divide<T: FlexInput>(&mut self, input: T) -> Self {
+        let value = input.to_f64();
+        
+        if value != 0.0 {
+            let sum: f64 = self.sum / value;
+            SumCurrent{
+                sum,
+            }
+        } else {
+            panic!("Division by zero is not allowed");
+        }
+    }
 }
 
 #[cfg(test)]
@@ -57,30 +129,65 @@ mod calc_backend_functionality {
     use super::*;
 
     #[test]
-    fn add_check() {
-        assert_eq!(add(2, 2), 4.0);
-        assert_eq!(add(12.0, 12), 24.0);
-        assert_eq!(add(24.0, 2.0), 26.0);
+    fn check_sum() {
+        let mut sum = SumCurrent::new_from(5.0);
+        assert_eq!(sum.sum, 5.0);
     }
 
     #[test]
-    fn subtract_check() {
-        assert_eq!(subtract(2, 2), 0.0);
-        assert_eq!(subtract(12.0, 12), 0.0);
-        assert_eq!(subtract(24.0, 2.0), 22.0);
+    fn check_add() {
+        let mut sum = SumCurrent::new_from(5.0);
+        assert_eq!(sum.sum, 5.0);
+
+        let sum1 = sum.add(2);
+        assert_eq!(sum1.sum, 7.0);
+
+        let sum2 = sum.add(12.0);
+        assert_eq!(sum2.sum, 17.0);
+
+        let sum3 = sum.add(24.0 as usize);
+        assert_eq!(sum3.sum, 29.0);
     }
 
     #[test]
-    fn multiply_check() {
-        assert_eq!(multiply(2, 2), 4.0);
-        assert_eq!(multiply(12.0, 12), 144.0);
-        assert_eq!(multiply(24.0, 2.0), 48.0);
+    fn check_subtract() {
+        let mut sum = SumCurrent::new_from(120.0);
+
+        let sum1 = sum.subtract(2);
+        assert_eq!(sum1.sum, 118.0);
+
+        let sum2 = sum.subtract(12.0);
+        assert_eq!(sum2.sum, 108.0);
+
+        let sum3 = sum.subtract(24 as usize);
+        assert_eq!(sum3.sum, 96.0);
     }
 
     #[test]
-    fn divide_check() {
-        assert_eq!(divide(2, 2), 1.0);
-        assert_eq!(divide(12.0, 12), 1.0);
-        assert_eq!(divide(24, 2.0), 12.0);
+    fn check_multiply() {
+        let mut sum = SumCurrent::new_from(120.0);
+        
+        let sum1 = sum.multiply(2);
+        assert_eq!(sum1.sum, 240.0);
+        
+        let sum2 = sum.multiply(12.0);
+        assert_eq!(sum2.sum, 1440.0);
+        
+        let sum3 = sum.multiply(24 as usize);
+        assert_eq!(sum3.sum, 2880.0);
+    }
+
+    #[test]
+    fn check_divide() {
+        let mut sum = SumCurrent::new_from(120.0);
+        
+        let sum1 = sum.divide(2);
+        assert_eq!(sum1.sum, 60.0);
+        
+        let sum2 = sum.divide(12.0);
+        assert_eq!(sum2.sum, 10.0);
+        
+        let sum3 = sum.divide(24 as usize);
+        assert_eq!(sum3.sum, 5.0);
     }
 }
