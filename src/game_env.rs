@@ -132,75 +132,92 @@ pub fn fire_ray(
                         // sum.zero();
                         op.index = 1;
                         sum_calc_operations(&mut op, &mut var, &mut sum);
+                        info!("Triggered button press animation for: C");
                     },
                     CalcButtons::Decimal => {
                         var.decimal();
+                        info!("Triggered button press animation for: .");
                     },
                     CalcButtons::Add => {
                         // Assuming there is an addition operation on `sum` involving `var`
                         // sum.add(var);
                         op.index = 2;
                         sum_calc_operations(&mut op, &mut var, &mut sum);
+                        info!("Triggered button press animation for: +");
                     },
                     CalcButtons::Subtract => {
                         // sum.subtract(var);
                         op.index = 3;
                         sum_calc_operations(&mut op, &mut var, &mut sum);
+                        info!("Triggered button press animation for: -");
                     },
                     CalcButtons::Multiply => {
                         // sum.multiply(var);
                         op.index = 4;
                         sum_calc_operations(&mut op, &mut var, &mut sum);
+                        info!("Triggered button press animation for: *");
                     },
                     CalcButtons::Divide => {
                         // sum.divide(var);
                         op.index = 5;
                         sum_calc_operations(&mut op, &mut var, &mut sum);
+                        info!("Triggered button press animation for: /");
                     },
                     CalcButtons::Sum => {
                         // var.review(); // Reviews the Vec of numbers stored in the Variable Vec and the period index.
                         op.index = 6;
                         sum_calc_operations(&mut op, &mut var, &mut sum);
+                        info!("Triggered button press animation for: =");
                     },
                     CalcButtons::Num0 => {
                         var.push(0);
                         // info!("Num0: {:?}", var.var);
+                        info!("Triggered button press animation for: 0");
                     },
                     CalcButtons::Num1 => {
                         var.push(1);
                         // info!("Num1: {:?}", var.var);
+                        info!("Triggered button press animation for: 1");
                     },
                     CalcButtons::Num2 => {
                         var.push(2);
                         // info!("Num2: {:?}", var.var);
+                        info!("Triggered button press animation for: 2");
                     },
                     CalcButtons::Num3 => {
                         var.push(3);
                         // info!("Num3: {:?}", var.var);
+                        info!("Triggered button press animation for: 3");
                     },
                     CalcButtons::Num4 => {
                         var.push(4);
                         // info!("Num4: {:?}", var.var);
+                        info!("Triggered button press animation for: 4");
                     },
                     CalcButtons::Num5 => {
                         var.push(5);
                         // info!("Num5: {:?}", var.var);
+                        info!("Triggered button press animation for: 5");
                     },
                     CalcButtons::Num6 => {
                         var.push(6);
                         // info!("Num6: {:?}", var.var);
+                        info!("Triggered button press animation for: 6");
                     },
                     CalcButtons::Num7 => {
                         var.push(7);
                         // info!("Num7: {:?}", var.var);
+                        info!("Triggered button press animation for: 7");
                     },
                     CalcButtons::Num8 => {
                         var.push(8);
                         // info!("Num8: {:?}", var.var);
+                        info!("Triggered button press animation for: 8");
                     },
                     CalcButtons::Num9 => {
                         var.push(9);
                         // info!("Num9: {:?}", var.var);
+                        info!("Triggered button press animation for: 9");
                     },
                     CalcButtons::NoneButtonBody => {
                         info!("Triggered calc shake animation for NoneButtonBody");
