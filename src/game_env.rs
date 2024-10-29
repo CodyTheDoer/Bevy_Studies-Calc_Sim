@@ -30,6 +30,47 @@ pub fn spawn_gltf(
     });
 }
 
+#[derive(Resource)]
+pub struct TargetEntity {
+    target_entity: u32,
+}
+
+impl TargetEntity {
+    pub fn new() -> Self {
+        let target_entity: u32 = 0;
+        TargetEntity {
+            target_entity,
+        }
+    }
+}
+
+#[derive(Component)] 
+pub struct ButtonAnimation {
+    progress: f32,
+    duration: f32,
+    initial_scale: Vec3,
+    target_scale: Vec3,
+    target_entity: Entity,
+}
+
+pub fn button_animation_system(
+    time: Res<Time>,
+    mut query: Query<(&mut Transform, &mut ButtonAnimation)>,
+    mut commands: Commands,
+) {
+    for (mut transform, mut animation) in query.iter_mut() {
+        animation.progress += time.delta_seconds();
+
+        let factor = (animation.progress / animation.duration).min(1.0);
+        transform.scale = animation.initial_scale.lerp(animation.target_scale, factor);
+
+        if factor >= 1.0 {
+            // Remove the animation component once the animation is complete
+            commands.entity(animation.target_entity).remove::<ButtonAnimation>();
+        }
+    }
+}
+
 #[derive(Debug)]
 pub enum CalcButtons {
     Sum,
@@ -87,6 +128,7 @@ impl CalcButtons {
 }
 
 pub fn fire_ray(
+    mut commands: Commands,
     mut raycast: Raycast,
     camera_query: Query<(&Camera, &GlobalTransform), With<CameraWorld>>, // Only query for the CameraWorld    
     windows: Query<&Window>,
@@ -122,7 +164,7 @@ pub fn fire_ray(
             // info!("Clicked on entity: {:?}", entity.index());
 
             let button_index = entity.index();
-            // info!("Entity Check: {:?}", &entity);
+            info!("Entity Check: {:?}", &entity);
 
             if let Some(button) = CalcButtons::from_index(button_index) {
                 // button.button_info(); // Call the method to log which button was clicked
@@ -168,6 +210,13 @@ pub fn fire_ray(
                         op.index = 6;
                         sum_calc_operations(&mut op, &mut var, &mut sum);
                         info!("Triggered button press animation for: =");
+                        commands.entity(*entity).insert(ButtonAnimation {
+                            progress: 0.0,
+                            duration: 0.15,
+                            initial_scale: Vec3::ONE,
+                            target_scale: Vec3::new(1.0, .9, 1.0),
+                            target_entity: *entity, // Use the current entity ID
+                        });
                     },
                     CalcButtons::Num0 => {
                         var.push(0);

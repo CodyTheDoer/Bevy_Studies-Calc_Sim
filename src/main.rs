@@ -12,7 +12,7 @@ use calc_sim::cam_ui::CameraUi;
 use calc_sim::cam_world::{draw_cursor, pan_orbit_camera, spawn_3d_camera};
 use calc_sim::cam_world::{CameraWorld, PanOrbitState};
 
-use calc_sim::game_env::{fire_ray, spawn_gltf};
+use calc_sim::game_env::{button_animation_system, fire_ray, spawn_gltf};
 use calc_sim::game_env::{CalcButtons, Interactable};
 
 fn main() {
@@ -26,13 +26,13 @@ fn main() {
             (
                 setup_ui,
                 spawn_gltf,
-                // add_interactable_to_meshes.after(spawn_gltf),
                 spawn_3d_camera,
             )
         )
         .add_systems(
             Update, 
             (
+                button_animation_system,
                 draw_cursor,
                 update_sum_text,
                 update_var_text,
