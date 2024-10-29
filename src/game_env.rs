@@ -127,6 +127,26 @@ impl CalcButtons {
     }
 }
 
+pub fn click_animation(
+    commands: &mut Commands,
+    entity: Entity,
+) {
+    commands.entity(entity).insert(ButtonAnimation {
+        progress: 0.0,
+        duration: 0.1,
+        initial_scale: Vec3::ONE,
+        target_scale: Vec3::new(1.0, 0.88, 1.0),
+        target_entity: entity, // Use the current entity ID
+    });
+    commands.entity(entity).insert(ButtonAnimation {
+        progress: 0.0,
+        duration: 0.18,
+        initial_scale: Vec3::new(1.0, 0.88, 1.0),
+        target_scale: Vec3::ONE,
+        target_entity: entity, // Use the current entity ID
+    });
+}
+
 pub fn fire_ray(
     mut commands: Commands,
     mut raycast: Raycast,
@@ -174,99 +194,109 @@ pub fn fire_ray(
                         // sum.zero();
                         op.index = 1;
                         sum_calc_operations(&mut op, &mut var, &mut sum);
-                        info!("Triggered button press animation for: C");
+                        // info!("Triggered button press animation for: C");
+                        click_animation(&mut commands, *entity);
                     },
                     CalcButtons::Decimal => {
                         var.decimal();
-                        info!("Triggered button press animation for: .");
+                        // info!("Triggered button press animation for: .");
+                        click_animation(&mut commands, *entity);
                     },
                     CalcButtons::Add => {
                         // Assuming there is an addition operation on `sum` involving `var`
                         // sum.add(var);
                         op.index = 2;
                         sum_calc_operations(&mut op, &mut var, &mut sum);
-                        info!("Triggered button press animation for: +");
+                        // info!("Triggered button press animation for: +");
+                        click_animation(&mut commands, *entity);
                     },
                     CalcButtons::Subtract => {
                         // sum.subtract(var);
                         op.index = 3;
                         sum_calc_operations(&mut op, &mut var, &mut sum);
-                        info!("Triggered button press animation for: -");
+                        // info!("Triggered button press animation for: -");
+                        click_animation(&mut commands, *entity);
                     },
                     CalcButtons::Multiply => {
                         // sum.multiply(var);
                         op.index = 4;
                         sum_calc_operations(&mut op, &mut var, &mut sum);
-                        info!("Triggered button press animation for: *");
+                        // info!("Triggered button press animation for: *");
+                        click_animation(&mut commands, *entity);
                     },
                     CalcButtons::Divide => {
                         // sum.divide(var);
                         op.index = 5;
                         sum_calc_operations(&mut op, &mut var, &mut sum);
-                        info!("Triggered button press animation for: /");
+                        // info!("Triggered button press animation for: /");
+                        click_animation(&mut commands, *entity);
                     },
                     CalcButtons::Sum => {
                         // var.review(); // Reviews the Vec of numbers stored in the Variable Vec and the period index.
                         op.index = 6;
                         sum_calc_operations(&mut op, &mut var, &mut sum);
-                        info!("Triggered button press animation for: =");
-                        commands.entity(*entity).insert(ButtonAnimation {
-                            progress: 0.0,
-                            duration: 0.15,
-                            initial_scale: Vec3::ONE,
-                            target_scale: Vec3::new(1.0, 0.9, 1.0),
-                            target_entity: *entity, // Use the current entity ID
-                        });
+                        // info!("Triggered button press animation for: =");
+                        click_animation(&mut commands, *entity);
                     },
                     CalcButtons::Num0 => {
                         var.push(0);
                         // info!("Num0: {:?}", var.var);
-                        info!("Triggered button press animation for: 0");
+                        // info!("Triggered button press animation for: 0");
+                        click_animation(&mut commands, *entity);
                     },
                     CalcButtons::Num1 => {
                         var.push(1);
                         // info!("Num1: {:?}", var.var);
-                        info!("Triggered button press animation for: 1");
+                        // info!("Triggered button press animation for: 1");
+                        click_animation(&mut commands, *entity);
                     },
                     CalcButtons::Num2 => {
                         var.push(2);
                         // info!("Num2: {:?}", var.var);
-                        info!("Triggered button press animation for: 2");
+                        // info!("Triggered button press animation for: 2");
+                        click_animation(&mut commands, *entity);
                     },
                     CalcButtons::Num3 => {
                         var.push(3);
                         // info!("Num3: {:?}", var.var);
-                        info!("Triggered button press animation for: 3");
+                        // info!("Triggered button press animation for: 3");
+                        click_animation(&mut commands, *entity);
                     },
                     CalcButtons::Num4 => {
                         var.push(4);
                         // info!("Num4: {:?}", var.var);
-                        info!("Triggered button press animation for: 4");
+                        // info!("Triggered button press animation for: 4");
+                        click_animation(&mut commands, *entity);
                     },
                     CalcButtons::Num5 => {
                         var.push(5);
                         // info!("Num5: {:?}", var.var);
-                        info!("Triggered button press animation for: 5");
+                        // info!("Triggered button press animation for: 5");
+                        click_animation(&mut commands, *entity);
                     },
                     CalcButtons::Num6 => {
                         var.push(6);
                         // info!("Num6: {:?}", var.var);
-                        info!("Triggered button press animation for: 6");
+                        // info!("Triggered button press animation for: 6");
+                        click_animation(&mut commands, *entity);
                     },
                     CalcButtons::Num7 => {
                         var.push(7);
                         // info!("Num7: {:?}", var.var);
-                        info!("Triggered button press animation for: 7");
+                        // info!("Triggered button press animation for: 7");
+                        click_animation(&mut commands, *entity);
                     },
                     CalcButtons::Num8 => {
                         var.push(8);
                         // info!("Num8: {:?}", var.var);
-                        info!("Triggered button press animation for: 8");
+                        // info!("Triggered button press animation for: 8");
+                        click_animation(&mut commands, *entity);
                     },
                     CalcButtons::Num9 => {
                         var.push(9);
                         // info!("Num9: {:?}", var.var);
-                        info!("Triggered button press animation for: 9");
+                        // info!("Triggered button press animation for: 9");
+                        click_animation(&mut commands, *entity);
                     },
                     CalcButtons::NoneButtonBody => {
                         info!("Triggered calc shake animation for NoneButtonBody");
