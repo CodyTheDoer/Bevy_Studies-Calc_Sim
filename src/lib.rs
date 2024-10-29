@@ -97,22 +97,26 @@ pub fn sum_calc_operations(
             CalcOperations::Add => {
                 info!("sum_calc_operations: Add");
                 op.last_op = 1;
-                SumCurrent::update_sum(var, &call, sum, op);
+                SumCurrent::var_to_sum_if_sum_zero(var, sum);
+                var.clear();
             },
             CalcOperations::Subtract => {
                 info!("sum_calc_operations: Subtract");
                 op.last_op = 2;
-                SumCurrent::update_sum(var, &call, sum, op);
+                SumCurrent::var_to_sum_if_sum_zero(var, sum);
+                var.clear();
             },
             CalcOperations::Multiply => {
                 info!("sum_calc_operations: Multiply");
                 op.last_op = 3;
-                SumCurrent::update_sum(var, &call, sum, op);
+                SumCurrent::var_to_sum_if_sum_zero(var, sum);
+                var.clear();
             },
             CalcOperations::Divide => {
                 info!("sum_calc_operations: Divide");
                 op.last_op = 4;
-                SumCurrent::update_sum(var, &call, sum, op);
+                SumCurrent::var_to_sum_if_sum_zero(var, sum);
+                var.clear();
             },
             CalcOperations::Sum => {
                 info!("sum_calc_operations: Sum");
@@ -179,14 +183,48 @@ impl SumCurrent {
         }
     }
 
-    // pub fn calc_init(
-    //     var: &mut ResMut<SumVariable>,
-    //     call: &CalcOperations,
-    //     sum: &mut ResMut<SumCurrent>,
-    //     op: &mut ResMut<OpIndex>,
-    // ) {
-    //     sum.sum = 0.0;
-    // }
+    pub fn var_to_sum_if_sum_zero(
+        var: &mut ResMut<SumVariable>,
+        sum: &mut ResMut<SumCurrent>,
+    ) {
+        if var.decimal_index > 0 && sum.sum == 0.0 {
+            let mut num: String = "".to_string();
+            let mut multiplier: String = ".".to_string();
+            for i in 0..var.var.len() {
+                num += &var.var[i].to_string();
+            }
+            for i in 0..var.var.len() - var.decimal_index as usize - 1 {
+                multiplier += "0";
+            }
+            multiplier += "1";
+            // info!("num {:?}", num);
+            // info!("multiplier {:?}", multiplier);
+
+            let res_num: f64 = num.to_string().parse::<f64>().unwrap();
+            let res_mul: f64 = multiplier.to_string().parse::<f64>().unwrap();
+            let res = res_num * res_mul;
+
+            sum.sum = res;
+            info!("update_sum: 1 Sum: {:?}", sum.sum);
+
+        } else if var.decimal_index == 0 && sum.sum == 0.0 {
+            // info!("update_sum: if 2");
+            let mut num: String = "".to_string();
+            for i in 0..var.var.len() {
+                num += &var.var[i].to_string();
+            }
+            let new_sum: f64 = if var.var.len() == 0 {
+                0.0
+            } else {
+                num.to_string().parse::<f64>().unwrap()
+            };
+
+            sum.sum = new_sum;
+            
+            // info!("update_sum: var.vec: {:?}", var.var);
+            info!("update_sum: 2 Sum: {:?}", sum.sum);
+        }
+    }
 
     pub fn update_sum(
         var: &mut ResMut<SumVariable>,

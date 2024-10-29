@@ -57,26 +57,26 @@ pub enum CalcButtons {
 impl CalcButtons {
     pub fn from_index(index: u32) -> Option<CalcButtons> {
         match index {
-            42 => Some(CalcButtons::Sum),
-            48 => Some(CalcButtons::Clear),
-            50 => Some(CalcButtons::Decimal),
-            43 => Some(CalcButtons::Add),
-            44 => Some(CalcButtons::Subtract),
-            45 => Some(CalcButtons::Multiply),
-            46 => Some(CalcButtons::Divide),
-            49 => Some(CalcButtons::Num0),
-            52 => Some(CalcButtons::Num1),
-            53 => Some(CalcButtons::Num2),
-            54 => Some(CalcButtons::Num3),
-            56 => Some(CalcButtons::Num4),
-            57 => Some(CalcButtons::Num5),
-            58 => Some(CalcButtons::Num6),
-            60 => Some(CalcButtons::Num7),
-            61 => Some(CalcButtons::Num8),
-            62 => Some(CalcButtons::Num9),
-            39 => Some(CalcButtons::NoneButtonBody),
-            64 => Some(CalcButtons::NoneButtonScreen),
-            65 => Some(CalcButtons::NoneButtonLightPanel),
+            44 => Some(CalcButtons::Sum),
+            50 => Some(CalcButtons::Clear),
+            52 => Some(CalcButtons::Decimal),
+            45 => Some(CalcButtons::Add),
+            46 => Some(CalcButtons::Subtract),
+            47 => Some(CalcButtons::Multiply),
+            48 => Some(CalcButtons::Divide),
+            51 => Some(CalcButtons::Num0),
+            54 => Some(CalcButtons::Num1),
+            55 => Some(CalcButtons::Num2),
+            56 => Some(CalcButtons::Num3),
+            58 => Some(CalcButtons::Num4),
+            59 => Some(CalcButtons::Num5),
+            60 => Some(CalcButtons::Num6),
+            62 => Some(CalcButtons::Num7),
+            63 => Some(CalcButtons::Num8),
+            64 => Some(CalcButtons::Num9),
+            41 => Some(CalcButtons::NoneButtonBody),
+            66 => Some(CalcButtons::NoneButtonScreen),
+            67 => Some(CalcButtons::NoneButtonLightPanel),
             _ => None, // Handle invalid index
         }
     }
@@ -122,6 +122,7 @@ pub fn fire_ray(
             // info!("Clicked on entity: {:?}", entity.index());
 
             let button_index = entity.index();
+            info!("Entity Check: {:?}", &entity);
 
             if let Some(button) = CalcButtons::from_index(button_index) {
                 // button.button_info(); // Call the method to log which button was clicked
@@ -163,33 +164,43 @@ pub fn fire_ray(
                     },
                     CalcButtons::Num0 => {
                         var.push(0);
+                        info!("Num0: {:?}", var.var);
                     },
                     CalcButtons::Num1 => {
                         var.push(1);
+                        info!("Num1: {:?}", var.var);
                     },
                     CalcButtons::Num2 => {
                         var.push(2);
+                        info!("Num2: {:?}", var.var);
                     },
                     CalcButtons::Num3 => {
                         var.push(3);
+                        info!("Num3: {:?}", var.var);
                     },
                     CalcButtons::Num4 => {
                         var.push(4);
+                        info!("Num4: {:?}", var.var);
                     },
                     CalcButtons::Num5 => {
                         var.push(5);
+                        info!("Num5: {:?}", var.var);
                     },
                     CalcButtons::Num6 => {
                         var.push(6);
+                        info!("Num6: {:?}", var.var);
                     },
                     CalcButtons::Num7 => {
                         var.push(7);
+                        info!("Num7: {:?}", var.var);
                     },
                     CalcButtons::Num8 => {
                         var.push(8);
+                        info!("Num8: {:?}", var.var);
                     },
                     CalcButtons::Num9 => {
                         var.push(9);
+                        info!("Num9: {:?}", var.var);
                     },
                     CalcButtons::NoneButtonBody => {
                         info!("NoneButtonBody");

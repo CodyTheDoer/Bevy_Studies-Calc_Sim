@@ -6,7 +6,7 @@ use bevy_mod_raycast::prelude::*;
 // use calc_sim::{add, subtract, multiply, divide};
 use calc_sim::{FlexInput, OpIndex, SumCurrent, SumVariable};
 
-use calc_sim::cam_ui::setup_ui;
+use calc_sim::cam_ui::{setup_ui, update_sum_text, update_var_text};
 use calc_sim::cam_ui::CameraUi;
 
 use calc_sim::cam_world::{draw_cursor, pan_orbit_camera, spawn_3d_camera};
@@ -34,6 +34,8 @@ fn main() {
             Update, 
             (
                 draw_cursor,
+                update_sum_text,
+                update_var_text,
                 pan_orbit_camera.run_if(any_with_component::<PanOrbitState>),
                 fire_ray.run_if(input_just_released(MouseButton::Left)),
             )
