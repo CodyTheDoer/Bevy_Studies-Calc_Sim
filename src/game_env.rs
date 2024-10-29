@@ -122,7 +122,7 @@ pub fn fire_ray(
             // info!("Clicked on entity: {:?}", entity.index());
 
             let button_index = entity.index();
-            info!("Entity Check: {:?}", &entity);
+            // info!("Entity Check: {:?}", &entity);
 
             if let Some(button) = CalcButtons::from_index(button_index) {
                 // button.button_info(); // Call the method to log which button was clicked
@@ -164,52 +164,52 @@ pub fn fire_ray(
                     },
                     CalcButtons::Num0 => {
                         var.push(0);
-                        info!("Num0: {:?}", var.var);
+                        // info!("Num0: {:?}", var.var);
                     },
                     CalcButtons::Num1 => {
                         var.push(1);
-                        info!("Num1: {:?}", var.var);
+                        // info!("Num1: {:?}", var.var);
                     },
                     CalcButtons::Num2 => {
                         var.push(2);
-                        info!("Num2: {:?}", var.var);
+                        // info!("Num2: {:?}", var.var);
                     },
                     CalcButtons::Num3 => {
                         var.push(3);
-                        info!("Num3: {:?}", var.var);
+                        // info!("Num3: {:?}", var.var);
                     },
                     CalcButtons::Num4 => {
                         var.push(4);
-                        info!("Num4: {:?}", var.var);
+                        // info!("Num4: {:?}", var.var);
                     },
                     CalcButtons::Num5 => {
                         var.push(5);
-                        info!("Num5: {:?}", var.var);
+                        // info!("Num5: {:?}", var.var);
                     },
                     CalcButtons::Num6 => {
                         var.push(6);
-                        info!("Num6: {:?}", var.var);
+                        // info!("Num6: {:?}", var.var);
                     },
                     CalcButtons::Num7 => {
                         var.push(7);
-                        info!("Num7: {:?}", var.var);
+                        // info!("Num7: {:?}", var.var);
                     },
                     CalcButtons::Num8 => {
                         var.push(8);
-                        info!("Num8: {:?}", var.var);
+                        // info!("Num8: {:?}", var.var);
                     },
                     CalcButtons::Num9 => {
                         var.push(9);
-                        info!("Num9: {:?}", var.var);
+                        // info!("Num9: {:?}", var.var);
                     },
                     CalcButtons::NoneButtonBody => {
-                        info!("NoneButtonBody");
+                        info!("Triggered calc shake animation for NoneButtonBody");
                     },
                     CalcButtons::NoneButtonScreen => {
-                        info!("NoneButtonScreen");
+                        info!("Triggered calc flicker animation for NoneButtonScreen");
                     },
                     CalcButtons::NoneButtonLightPanel => {
-                        info!("NoneButtonLightPanel");
+                        info!("Triggered calc dim animation for NoneButtonLightPanel");
                     },
                     _ => {
                         // Handle invalid button case, if needed
