@@ -18,6 +18,11 @@ use calc_sim::game_env::{CalcButtons, Interactable};
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
+        .add_state(CalculatorState::Init) // Start with the Init state
+        .add_system_set(SystemSet::on_update(CalculatorState::Add).with_system(add_system))
+        .add_system_set(SystemSet::on_update(CalculatorState::Subtract).with_system(subtract_system))
+        .add_system_set(SystemSet::on_update(CalculatorState::Clear).with_system(clear_system))
+        .add_system_set(SystemSet::on_update(CalculatorState::Init).with_system(init_system));
         .insert_resource(SumCurrent::new())
         .insert_resource(SumVariable::new())
         .insert_resource(OpIndex::new())
@@ -46,4 +51,55 @@ fn setup_backend(
     mut op: ResMut<OpIndex>,
 ) {
     op.index = 0;
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+enum CalculatorState {
+    Init,
+    Add,
+    Subtract,
+    Multiply,
+    Divide,
+    Clear,
+}
+
+fn add_system(
+    mut var: ResMut<SumVariable>,
+    mut sum: ResMut<SumCurrent>,
+    mut op: ResMut<OpIndex>,
+) {
+    info!("Running Add system");
+    // Add your logic here to update the sum
+}
+
+fn subtract_system(
+    mut var: ResMut<SumVariable>,
+    mut sum: ResMut<SumCurrent>,
+    mut op: ResMut<OpIndex>,
+) {
+    info!("Running Init system");
+    // Handle Init logic here
+}
+
+fn clear_system(
+    mut var: ResMut<SumVariable>,
+    mut sum: ResMut<SumCurrent>,
+    mut op: ResMut<OpIndex>,
+) {
+    info!("Running Add system");
+    info!("match_str: Clear");
+    SumCurrent::new();
+    while var.var.len() > 0 {
+        var.var.pop();
+    }
+    var.review(); // Reviews the Vec of numbers stored in the Variable Vec and the period index.
+}
+
+fn init_system(
+    mut var: ResMut<SumVariable>,
+    mut sum: ResMut<SumCurrent>,
+    mut op: ResMut<OpIndex>,
+) {
+    info!("Running Init system");
+    // Handle Init logic here
 }

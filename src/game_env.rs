@@ -130,14 +130,16 @@ pub fn fire_ray(
                         // info!("sum: {}", sum.sum);
                         // info!("var: {:?}", var.var);
                         // info!("decimal index: {}", var.decimal_index);
-                        var.review(); // Reviews the Vec of numbers stored in the Variable Vec and the period index.
-                        sum_calc_operations(op.index, &mut var);
+                        op.index = 6;
+                        sum_calc_operations(&mut op, &mut var, &mut sum);
+                        // info!("Sum: {:?}", &mut sum.sum);
                     },
                     CalcButtons::Clear => {
                         // Assuming sum has a method to reset to zero
                         // sum.zero();
                         op.index = 1;
-                        sum_calc_operations(op.index, &mut var);
+                        sum_calc_operations(&mut op, &mut var, &mut sum);
+                        var.review()
                     },
                     CalcButtons::Decimal => {
                         var.decimal();
@@ -146,22 +148,22 @@ pub fn fire_ray(
                         // Assuming there is an addition operation on `sum` involving `var`
                         // sum.add(var);
                         op.index = 2;
-                        sum_calc_operations(op.index, &mut var);
+                        sum_calc_operations(&mut op, &mut var, &mut sum);
                     },
                     CalcButtons::Subtract => {
                         // sum.subtract(var);
                         op.index = 3;
-                        sum_calc_operations(op.index, &mut var);
+                        sum_calc_operations(&mut op, &mut var, &mut sum);
                     },
                     CalcButtons::Multiply => {
                         // sum.multiply(var);
                         op.index = 4;
-                        sum_calc_operations(op.index, &mut var);
+                        sum_calc_operations(&mut op, &mut var, &mut sum);
                     },
                     CalcButtons::Divide => {
                         // sum.divide(var);
                         op.index = 5;
-                        sum_calc_operations(op.index, &mut var);
+                        sum_calc_operations(&mut op, &mut var, &mut sum);
                     },
                     CalcButtons::Num0 => {
                         var.push(0);

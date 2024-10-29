@@ -32,7 +32,7 @@ impl FlexInput for i32 {
     }
 }
 
-#[derive(Resource)]
+#[derive(Clone, Resource)]
 pub struct OpIndex {
     pub index: u32,
 }
@@ -54,6 +54,7 @@ pub enum CalcOperations {
     Subtract,
     Multiply,
     Divide,
+    Sum,
 }
 
 impl CalcOperations {
@@ -65,19 +66,42 @@ impl CalcOperations {
             3 => Some(CalcOperations::Subtract),
             4 => Some(CalcOperations::Multiply),
             5 => Some(CalcOperations::Divide),
+            6 => Some(CalcOperations::Sum),
             _ => None, // Handle invalid index
         }
     }
 }
 
+pub fn calc_op_return_string(index: &u32) -> &str { 
+    // This to_string business is giving us a hard time
+    // Need to figure out how to just get the literal we want to reference.
+    if *index == 0 {
+        "Init"
+    } else if *index == 1 {
+        "Clear"
+    } else if *index == 2 {
+        "Add"
+    } else if *index == 3 {
+        "Subtract"
+    } else if *index == 4 {
+        "Multiply"
+    } else if *index == 5 {
+        "Divide"
+    } else {
+        "Index: {index}: Failure"
+    }
+}
+
 pub fn sum_calc_operations(
-    op: u32,
+    op: &mut ResMut<OpIndex>,
     var: &mut ResMut<SumVariable>,
+    sum: &mut ResMut<SumCurrent>,
 ) {
-    if let Some(call) = CalcOperations::from_index(op) {
+    if let Some(call) = CalcOperations::from_index(op.index) {
         match call {
             CalcOperations::Init => {
                 info!("Init");
+                SumCurrent::update_sum(var, &call, sum, op);
             },
             CalcOperations::Clear => {
                 info!("Clear");
@@ -94,6 +118,9 @@ pub fn sum_calc_operations(
             CalcOperations::Divide => {
                 info!("Divide");
             },
+            CalcOperations::Sum => {
+                info!("Sum");
+            },
             _ => {
                 // Handle invalid button case, if needed
                 info!("Invalid call, shouldn't even be possible @_@ What did you do?");
@@ -102,7 +129,7 @@ pub fn sum_calc_operations(
     }
 }
 
-#[derive(Resource)]
+#[derive(Clone, Resource)]
 pub struct SumVariable {
     pub var: Vec<i32>,
     pub decimal_index: i32,
@@ -146,12 +173,75 @@ impl SumCurrent {
         }
     }
 
-    // pub fn update_sum(
-    //     mut var: ResMut<SumVariable>,
-    // ) { // rebuild vec from SumVariable into f64 and pass it into the sum with maths if applicable
-    //     let vvec = &var.var;
-    //     let vindex = &var.decimal_index
-    // }
+    pub fn update_sum(
+        var: &mut ResMut<SumVariable>,
+        call: &CalcOperations,
+        sum: &mut ResMut<SumCurrent>,
+        op: &mut ResMut<OpIndex>,
+    ) { // rebuild vec from SumVariable into f64 and pass it into the sum with maths if applicable
+        info!("Init: update_sum");
+        info!("decimal_index: {:?}", var.decimal_index);
+
+        if var.decimal_index > 0 {
+            info!("If: (if *&var.decimal_index > 0 ) Check Passed");
+
+            let mut num: String = "".to_string();
+            let mut multiplier: String = ".".to_string();
+            for i in 0..var.var.len() {
+                num += &var.var[i].to_string();
+            }
+            for i in 0..var.var.len() - var.decimal_index as usize - 1 {
+                multiplier += "0";
+            }
+            multiplier += "1";
+            // info!("num {:?}", num);
+            // info!("multiplier {:?}", multiplier);
+
+            let res_num: f64 = num.to_string().parse::<f64>().unwrap();
+            let res_mul: f64 = multiplier.to_string().parse::<f64>().unwrap();
+            let res = res_num * res_mul;
+
+            // info!("res_mul: {:?}", res);
+            // info!("var.var: {:?}", var.var);
+            // info!("Sum: {:?}", sum.sum);
+
+            // info!("Test: {:?}", calc_op_return_string(&op.index));
+
+            let match_str: &str = calc_op_return_string(&op.index);
+            
+            match match_str {
+                "Init" => {},
+                "Clear" => {
+                    info!("match_str: Clear");
+                    SumCurrent::new();
+                    let var_vec_length = var.var.len();
+                    while var.var.len() > 0 {
+                        var.var.pop();
+                    }
+                    var.review(); // Reviews the Vec of numbers stored in the Variable Vec and the period index.
+                },
+                "Add" => {
+                    info!("match_str: Add");
+                },
+                "Subtract" => {
+                    info!("match_str: Subtract");
+                },
+                "Multiply" => {
+                    info!("match_str: Multiply");
+                },
+                "Divide" => {
+                    info!("match_str: Divide");
+                },
+                "Sum" => {
+                    info!("match_str: sum");
+                },
+                _ => {
+                    // Handle invalid button case, if needed
+                    info!("Invalid call, shouldn't even be possible @_@ What did you do?");
+                },
+            }
+        }
+    }
 
     pub fn new_from<T: FlexInput>(input: T) -> Self {
         let sum: f64 = input.to_f64();
