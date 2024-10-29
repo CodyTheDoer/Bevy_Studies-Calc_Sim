@@ -4,7 +4,9 @@ use bevy::ecs::event::EventReader;
 use bevy_mod_raycast::prelude::*;
 
 use crate::cam_world::CameraWorld;
-use crate::{SumCurrent, SumVariable};
+use crate::sum_calc_operations;
+use crate::{OpIndex, SumCurrent, SumVariable};
+
 #[derive(Component)]
 pub struct Interactable; 
 
@@ -91,6 +93,7 @@ pub fn fire_ray(
     interactable_query: Query<Entity, With<Interactable>>,
     mut sum: ResMut<SumCurrent>,
     mut var: ResMut<SumVariable>,
+    mut op: ResMut<OpIndex>,
 ) {    
     let (camera, camera_transform) = match camera_query.get_single() {
         Ok(result) => result,
@@ -121,18 +124,20 @@ pub fn fire_ray(
             let button_index = entity.index();
 
             if let Some(button) = CalcButtons::from_index(button_index) {
-                button.button_info(); // Call the method to log which button was clicked
+                // button.button_info(); // Call the method to log which button was clicked
                 match button {
                     CalcButtons::Sum => {
-                        info!("sum: {}", sum.sum);
-                        info!("var: {:?}", var.var);
-                        info!("decimal index: {}", var.decimal_index);
-                        var.review();
+                        // info!("sum: {}", sum.sum);
+                        // info!("var: {:?}", var.var);
+                        // info!("decimal index: {}", var.decimal_index);
+                        var.review(); // Reviews the Vec of numbers stored in the Variable Vec and the period index.
+                        sum_calc_operations(op.index);
                     },
                     CalcButtons::Clear => {
                         // Assuming sum has a method to reset to zero
                         // sum.zero();
-                        info!("Clear");
+                        op.index = 1;
+                        sum_calc_operations(op.index);
                     },
                     CalcButtons::Decimal => {
                         var.decimal();
@@ -140,19 +145,23 @@ pub fn fire_ray(
                     CalcButtons::Add => {
                         // Assuming there is an addition operation on `sum` involving `var`
                         // sum.add(var);
-                        info!("Add");
+                        op.index = 2;
+                        sum_calc_operations(op.index);
                     },
                     CalcButtons::Subtract => {
                         // sum.subtract(var);
-                        info!("Subtract");
+                        op.index = 3;
+                        sum_calc_operations(op.index);
                     },
                     CalcButtons::Multiply => {
                         // sum.multiply(var);
-                        info!("Multiply");
+                        op.index = 4;
+                        sum_calc_operations(op.index);
                     },
                     CalcButtons::Divide => {
                         // sum.divide(var);
-                        info!("Divide");
+                        op.index = 5;
+                        sum_calc_operations(op.index);
                     },
                     CalcButtons::Num0 => {
                         var.push(0);

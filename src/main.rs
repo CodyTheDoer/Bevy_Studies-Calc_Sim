@@ -4,7 +4,7 @@ use bevy::input::common_conditions::*;
 use bevy_mod_raycast::prelude::*;
 
 // use calc_sim::{add, subtract, multiply, divide};
-use calc_sim::{SumCurrent, SumVariable, FlexInput};
+use calc_sim::{FlexInput, OpIndex, SumCurrent, SumVariable};
 
 use calc_sim::cam_ui::setup_ui;
 use calc_sim::cam_ui::CameraUi;
@@ -20,9 +20,11 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .insert_resource(SumCurrent::new())
         .insert_resource(SumVariable::new())
+        .insert_resource(OpIndex::new())
         .add_systems(
             Startup, 
             (
+                setup_backend,
                 setup_ui,
                 spawn_gltf,
                 // add_interactable_to_meshes.after(spawn_gltf),
@@ -38,4 +40,10 @@ fn main() {
             )
         )
         .run();
+}
+
+fn setup_backend(
+    mut op: ResMut<OpIndex>,
+) {
+    op.index = 0;
 }

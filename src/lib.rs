@@ -33,6 +33,75 @@ impl FlexInput for i32 {
 }
 
 #[derive(Resource)]
+pub struct OpIndex {
+    pub index: u32,
+}
+
+impl OpIndex {
+    pub fn new() -> Self {
+        let index: u32 = 0;
+        OpIndex {
+            index,
+        }
+    }
+}
+
+#[derive(Debug)]
+pub enum CalcOperations {
+    Init,
+    Clear,
+    Add,
+    Subtract,
+    Multiply,
+    Divide,
+}
+
+impl CalcOperations {
+    pub fn from_index(index: u32) -> Option<CalcOperations> {
+        match index {
+            0 => Some(CalcOperations::Init),
+            1 => Some(CalcOperations::Clear),
+            2 => Some(CalcOperations::Add),
+            3 => Some(CalcOperations::Subtract),
+            4 => Some(CalcOperations::Multiply),
+            5 => Some(CalcOperations::Divide),
+            _ => None, // Handle invalid index
+        }
+    }
+}
+
+pub fn sum_calc_operations(
+    op: u32,
+) {
+    if let Some(call) = CalcOperations::from_index(op) {
+        match call {
+            CalcOperations::Init => {
+                info!("Init");
+            },
+            CalcOperations::Clear => {
+                info!("Clear");
+            },
+            CalcOperations::Add => {
+                info!("Add");
+            },
+            CalcOperations::Subtract => {
+                info!("Subtract");
+            },
+            CalcOperations::Multiply => {
+                info!("Multiply");
+            },
+            CalcOperations::Divide => {
+                info!("Divide");
+            },
+            _ => {
+                // Handle invalid button case, if needed
+                info!("Invalid call, shouldn't even be possible @_@ What did you do?");
+            },
+        }
+    }
+}
+
+#[derive(Resource)]
 pub struct SumVariable {
     pub var: Vec<i32>,
     pub decimal_index: i32,
@@ -49,7 +118,8 @@ impl SumVariable {
     }
 
     pub fn review(&self) {
-        info!("{:?}", self.var);
+        info!("var {:?}", self.var);
+        info!("ind {:?}", self.decimal_index);
     }
 
     pub fn push(&mut self, input: i32) {
@@ -74,6 +144,13 @@ impl SumCurrent {
             sum,
         }
     }
+
+    // pub fn update_sum(
+    //     mut var: ResMut<SumVariable>,
+    // ) { // rebuild vec from SumVariable into f64 and pass it into the sum with maths if applicable
+    //     let vvec = &var.var;
+    //     let vindex = &var.decimal_index
+    // }
 
     pub fn new_from<T: FlexInput>(input: T) -> Self {
         let sum: f64 = input.to_f64();
