@@ -24,7 +24,6 @@ fn main() {
         .add_systems(
             Startup, 
             (
-                setup_backend,
                 setup_ui,
                 spawn_gltf,
                 // add_interactable_to_meshes.after(spawn_gltf),
@@ -40,10 +39,4 @@ fn main() {
             )
         )
         .run();
-}
-
-fn setup_backend(
-    mut op: ResMut<OpIndex>,
-) {
-    op.index = 0;
 }
