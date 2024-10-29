@@ -131,13 +131,13 @@ pub fn fire_ray(
                         // info!("var: {:?}", var.var);
                         // info!("decimal index: {}", var.decimal_index);
                         var.review(); // Reviews the Vec of numbers stored in the Variable Vec and the period index.
-                        sum_calc_operations(op.index);
+                        sum_calc_operations(op.index, &mut var);
                     },
                     CalcButtons::Clear => {
                         // Assuming sum has a method to reset to zero
                         // sum.zero();
                         op.index = 1;
-                        sum_calc_operations(op.index);
+                        sum_calc_operations(op.index, &mut var);
                     },
                     CalcButtons::Decimal => {
                         var.decimal();
@@ -146,22 +146,22 @@ pub fn fire_ray(
                         // Assuming there is an addition operation on `sum` involving `var`
                         // sum.add(var);
                         op.index = 2;
-                        sum_calc_operations(op.index);
+                        sum_calc_operations(op.index, &mut var);
                     },
                     CalcButtons::Subtract => {
                         // sum.subtract(var);
                         op.index = 3;
-                        sum_calc_operations(op.index);
+                        sum_calc_operations(op.index, &mut var);
                     },
                     CalcButtons::Multiply => {
                         // sum.multiply(var);
                         op.index = 4;
-                        sum_calc_operations(op.index);
+                        sum_calc_operations(op.index, &mut var);
                     },
                     CalcButtons::Divide => {
                         // sum.divide(var);
                         op.index = 5;
-                        sum_calc_operations(op.index);
+                        sum_calc_operations(op.index, &mut var);
                     },
                     CalcButtons::Num0 => {
                         var.push(0);

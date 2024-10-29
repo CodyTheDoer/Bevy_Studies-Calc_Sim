@@ -72,6 +72,7 @@ impl CalcOperations {
 
 pub fn sum_calc_operations(
     op: u32,
+    var: &mut ResMut<SumVariable>,
 ) {
     if let Some(call) = CalcOperations::from_index(op) {
         match call {
