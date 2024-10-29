@@ -214,7 +214,7 @@ pub fn fire_ray(
                             progress: 0.0,
                             duration: 0.15,
                             initial_scale: Vec3::ONE,
-                            target_scale: Vec3::new(1.0, .9, 1.0),
+                            target_scale: Vec3::new(1.0, 0.9, 1.0),
                             target_entity: *entity, // Use the current entity ID
                         });
                     },
