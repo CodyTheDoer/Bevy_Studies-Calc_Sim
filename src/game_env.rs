@@ -10,8 +10,13 @@ use crate::{OpIndex, SumCurrent, SumVariable};
 #[derive(Component)]
 pub struct Interactable; 
 
+#[derive(Component)]
+pub struct Ground;
+
 pub fn spawn_gltf(
     mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
     ass: Res<AssetServer>,
 ) {
     let gltf = ass.load("calculator.glb#Scene0");
@@ -23,6 +28,21 @@ pub fn spawn_gltf(
     })
     .insert(Interactable); // Custom marker to identify this as interactable
     
+    // Circular plane
+    commands.spawn((
+        PbrBundle {
+            mesh: meshes.add(Circle::new(2000.)).into(),
+            material: materials.add(Color::srgb(0.1, 0.0, 0.1)),
+            transform: Transform {
+                translation: Vec3::new(0.0, -0.65, 0.0),
+                rotation: Quat::from_rotation_x(-2.0 * (std::f32::consts::PI / 4.0)), //4 = 45 degrees
+                ..default()
+            },
+            ..default()
+        },
+        Ground,
+    ));
+
     // Light
     commands.spawn(DirectionalLightBundle {
         transform: Transform::from_translation(Vec3::ONE).looking_at(Vec3::ZERO, Vec3::Y),
@@ -98,26 +118,26 @@ pub enum CalcButtons {
 impl CalcButtons {
     pub fn from_index(index: u32) -> Option<CalcButtons> {
         match index {
-            44 => Some(CalcButtons::Sum),
-            50 => Some(CalcButtons::Clear),
-            52 => Some(CalcButtons::Decimal),
-            45 => Some(CalcButtons::Add),
-            46 => Some(CalcButtons::Subtract),
-            47 => Some(CalcButtons::Multiply),
-            48 => Some(CalcButtons::Divide),
-            51 => Some(CalcButtons::Num0),
-            54 => Some(CalcButtons::Num1),
-            55 => Some(CalcButtons::Num2),
-            56 => Some(CalcButtons::Num3),
-            58 => Some(CalcButtons::Num4),
-            59 => Some(CalcButtons::Num5),
-            60 => Some(CalcButtons::Num6),
-            62 => Some(CalcButtons::Num7),
-            63 => Some(CalcButtons::Num8),
-            64 => Some(CalcButtons::Num9),
-            41 => Some(CalcButtons::NoneButtonBody),
-            66 => Some(CalcButtons::NoneButtonScreen),
-            67 => Some(CalcButtons::NoneButtonLightPanel),
+            45 => Some(CalcButtons::Sum),
+            51 => Some(CalcButtons::Clear),
+            53 => Some(CalcButtons::Decimal),
+            46 => Some(CalcButtons::Add),
+            47 => Some(CalcButtons::Subtract),
+            48 => Some(CalcButtons::Multiply),
+            49 => Some(CalcButtons::Divide),
+            52 => Some(CalcButtons::Num0),
+            55 => Some(CalcButtons::Num1),
+            56 => Some(CalcButtons::Num2),
+            57 => Some(CalcButtons::Num3),
+            59 => Some(CalcButtons::Num4),
+            60 => Some(CalcButtons::Num5),
+            61 => Some(CalcButtons::Num6),
+            63 => Some(CalcButtons::Num7),
+            64 => Some(CalcButtons::Num8),
+            65 => Some(CalcButtons::Num9),
+            42 => Some(CalcButtons::NoneButtonBody),
+            67 => Some(CalcButtons::NoneButtonScreen),
+            68 => Some(CalcButtons::NoneButtonLightPanel),
             _ => None, // Handle invalid index
         }
     }
