@@ -4,17 +4,230 @@ use bevy::ecs::event::EventReader;
 use bevy_mod_raycast::prelude::*;
 
 use crate::cam_world::CameraWorld;
-use crate::sum_calc_operations;
+use crate::{sum_calc_operations};
 use crate::{OpIndex, SumCurrent, SumVariable};
 
-#[derive(Component)]
-pub struct ColorChange;
+#[derive(Default, Resource)]
+pub struct CurrentMeshColor;
 
 #[derive(Asset, Component, TypePath)]
 pub struct Interactable; 
 
+#[derive(Resource)]
+pub struct ScreenAlbedoState {
+    state: u32,
+}
+
+#[derive(Component)]
+pub struct ColorChange;
+
 #[derive(Component)]
 pub struct Ground;
+
+#[derive(Component)]
+pub struct Loaded;
+
+#[derive(Debug, Resource)]
+pub enum MeshColor { // If changed update VARIANT_COUNT 
+    Black,
+    White,
+    Red,
+    Green,
+    Blue,
+}
+
+impl MeshColor {
+    pub const VARIANT_COUNT: u32 = 4;
+}
+
+impl ScreenAlbedoState {
+    pub fn new() -> Self {
+        Self {
+            state: 0,
+        }
+    }
+
+    pub fn should_run(&self) -> bool {
+        self.state == 1
+    }
+}
+
+impl Default for ScreenAlbedoState {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl CurrentMeshColor {
+    fn from_index(index: u32) -> Option<MeshColor> {
+        match index {
+            0 => Some(MeshColor::Black),
+            1 => Some(MeshColor::White),
+            2 => Some(MeshColor::Red),
+            3 => Some(MeshColor::Green),
+            4 => Some(MeshColor::Blue),
+            _ => None, // Handle invalid index
+        }
+    }
+
+    fn update_current_mesh_color(
+        op: &mut ResMut<OpIndex>,
+    ) -> Color {
+        if let Some(call) = CurrentMeshColor::from_index(op.index) {
+            match call {
+                MeshColor::Black => {
+                    Color::srgb(0.0, 0.0, 0.0)
+                },
+                MeshColor::White => {
+                    Color::srgb(1.0, 1.0, 1.0)
+                },
+                MeshColor::Red => {
+                    Color::srgb(1.0, 0.0, 0.0)
+                },
+                MeshColor::Green => {
+                    Color::srgb(0.0, 1.0, 0.0)
+                },
+                MeshColor::Blue => {
+                    Color::srgb(0.0, 0.0, 1.0)
+                },
+            }
+        } else {
+            Color::srgb(0.0, 0.0, 0.0)
+        }
+    }
+
+    fn update_gltf_material_color(
+        children_query: Query<&Children>,
+        color_change_cube_query: Query<(Entity, &Handle<Scene>), (With<ColorChange>, With<Loaded>)>,
+        mut materials: ResMut<Assets<StandardMaterial>>,
+        material_query: Query<&Handle<StandardMaterial>>,
+        op_index: &mut ResMut<OpIndex>,
+    ) {
+        for (entity, _) in color_change_cube_query.iter() {
+            if let Ok(children) = children_query.get(entity) {
+                Self::process_entity_children(
+                    &mut materials,
+                    &material_query,
+                    children,
+                    &children_query,
+                    op_index,         
+                );
+            }
+        }
+    }
+
+    fn process_entity_children(
+        materials: &mut ResMut<Assets<StandardMaterial>>,
+        material_query: &Query<&Handle<StandardMaterial>>,
+        children: &Children,
+        children_query: &Query<&Children>,
+        op_index: &mut ResMut<OpIndex>,
+    ) {
+        for &child in children.iter() {
+            if child.index() == 67 { // This targets the screen component specifically, still learning about glb files and how to extract names s I don't have a more dynamic way of handling it for now.
+                if let Ok(material_handle) = material_query.get(child) {
+                    if let Some(material) = materials.get_mut(material_handle) {
+                        material.base_color = CurrentMeshColor::update_current_mesh_color(op_index);
+                    }
+                }
+            }
+            // Recursively check grandchildren
+            if let Ok(grandchildren) = children_query.get(child) {
+                Self::process_entity_children(
+                    materials,
+                    material_query,
+                    grandchildren,
+                    children_query,
+                    op_index,
+                );
+            }
+        }
+    }
+}
+
+/// This system starts the countdown when the mouse is clicked.
+pub fn update_screen_albedo(
+    mut countdown: ResMut<Countdown>,
+    mut screen_albedo_state: ResMut<ScreenAlbedoState>,
+ ) {
+    // Only start the countdown if it's not already active
+    if !countdown.is_active {
+        countdown.is_active = true;
+        countdown.current_count = 0; // Reset the current count
+        countdown.timer.reset();  // Reset the timer to start fresh
+    }
+    screen_albedo_state.state = 0;
+}
+
+/// This system controls ticking the timer within the countdown resource and
+/// handling its state.
+pub fn screen_albedo(
+    time: Res<Time>, 
+    mut countdown: ResMut<Countdown>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    children_query: Query<&Children>,
+    material_query: Query<&Handle<StandardMaterial>>,
+    color_change_cube_query: Query<(Entity, &Handle<Scene>), (With<ColorChange>, With<Loaded>)>,
+    mut op_index: ResMut<OpIndex>,
+) {
+    // Only tick the timer if the countdown is active
+    if countdown.is_active {
+        // Tick the timer
+        countdown.timer.tick(time.delta());
+
+        // Check if the timer has finished for the current iteration
+        if countdown.timer.finished() {
+            // Update the albedo before we cycle color
+            CurrentMeshColor::update_gltf_material_color(
+                children_query,
+                color_change_cube_query,
+                materials,
+                material_query,
+                &mut op_index,
+            );
+
+            countdown.current_count += 1;
+            let color_count = MeshColor::VARIANT_COUNT;
+            if op_index.index == color_count {
+                op_index.index = 0;
+            } else {
+                op_index.index += 1;
+            }
+            // If we've completed all iterations, stop the countdown
+            if countdown.current_count >= countdown.loop_count {
+                countdown.is_active = false;
+            } else {
+                // Otherwise, reset the timer for the next iteration
+                countdown.timer.reset();
+            }
+        } 
+    }
+}
+
+#[derive(Resource)]
+pub struct Countdown {
+    pub timer: Timer,           // Set single timer for countdown
+    pub loop_count: u32,        // Number of loops, currently tied to the varient_count to loop through all dynamically
+    pub current_count: u32,     // Tracks where in the loop you are
+    pub is_active: bool,        // Tracks if the loop is active
+}
+
+impl Countdown {
+    pub fn new() -> Self {
+        Self {
+            timer: Timer::from_seconds(0.125, TimerMode::Once), // Set single timer for countdown
+            loop_count: MeshColor::VARIANT_COUNT + 1, // +1 accounts for indexed logic
+            current_count: 0,
+            is_active: false,  // Initially inactive
+        }
+    }
+}
+
+impl Default for Countdown {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 pub fn spawn_gltf(
     mut commands: Commands,
@@ -180,6 +393,7 @@ pub fn fire_ray(
     mut sum: ResMut<SumCurrent>,
     mut var: ResMut<SumVariable>,
     mut op: ResMut<OpIndex>,
+    mut screen_albedo: ResMut<ScreenAlbedoState>,
 ) {    
     let (camera, camera_transform) = match camera_query.get_single() {
         Ok(result) => result,
@@ -326,6 +540,7 @@ pub fn fire_ray(
                         info!("Triggered calc shake animation for NoneButtonBody");
                     },
                     CalcButtons::NoneButtonScreen => {
+                        screen_albedo.state = 1;
                         info!("Triggered calc flicker animation for NoneButtonScreen");
                     },
                     CalcButtons::NoneButtonLightPanel => {

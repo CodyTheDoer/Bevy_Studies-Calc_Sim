@@ -122,10 +122,6 @@ pub fn sum_calc_operations(
                 // info!("sum_calc_operations: Sum");
                 SumCurrent::update_sum(var, &call, sum, op);
             },
-            _ => {
-                // Handle invalid button case, if needed
-                info!("sum_calc_operations: Invalid call, shouldn't even be possible @_@ What did you do?");
-            },
         }
     }
 }
@@ -197,7 +193,7 @@ impl SumCurrent {
             for i in 0..var.var.len() {
                 num += &var.var[i].to_string();
             }
-            for i in 0..var.var.len() - var.decimal_index as usize - 1 {
+            for _ in 0..var.var.len() - var.decimal_index as usize - 1 {
                 multiplier += "0";
             }
             multiplier += "1";
@@ -244,7 +240,7 @@ impl SumCurrent {
             for i in 0..var.var.len() {
                 num += &var.var[i].to_string();
             }
-            for i in 0..var.var.len() - var.decimal_index as usize - 1 {
+            for _ in 0..var.var.len() - var.decimal_index as usize - 1 {
                 multiplier += "0";
             }
             multiplier += "1";
@@ -282,7 +278,7 @@ impl SumCurrent {
             for i in 0..var.var.len() {
                 num += &var.var[i].to_string();
             }
-            for i in 0..var.var.len() - var.decimal_index as usize - 1 {
+            for _ in 0..var.var.len() - var.decimal_index as usize - 1 {
                 multiplier += "0";
             }
             multiplier += "1";

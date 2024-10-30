@@ -36,7 +36,7 @@ pub fn update_var_text(
             num += &var.var[i].to_string();
         }
         
-        for i in 0..var.var.len() - var.decimal_index as usize {
+        for _ in 0..var.var.len() - var.decimal_index as usize {
             multiplier += "0";
         }
         
