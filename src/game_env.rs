@@ -8,6 +8,9 @@ use crate::sum_calc_operations;
 use crate::{OpIndex, SumCurrent, SumVariable};
 
 #[derive(Component)]
+pub struct ColorChange;
+
+#[derive(Asset, Component, TypePath)]
 pub struct Interactable; 
 
 #[derive(Component)]
@@ -26,6 +29,7 @@ pub fn spawn_gltf(
         scene: gltf,
         ..Default::default()
     })
+    .insert(ColorChange)
     .insert(Interactable); // Custom marker to identify this as interactable
     
     // Circular plane
