@@ -73,7 +73,7 @@ impl CurrentMeshColor {
     fn update_current_mesh_color(
         op: &mut ResMut<OpIndex>,
     ) -> Color {
-        if let Some(call) = CurrentMeshColor::from_index(op.index) {
+        if let Some(call) = CurrentMeshColor::from_index(op.screen_color) {
             match call {
                 MeshColor::Black => {
                     Color::srgb(0.0, 0.0, 0.0)
@@ -150,7 +150,6 @@ pub fn update_screen_albedo(
     mut countdown: ResMut<Countdown>,
     mut screen_albedo_state: ResMut<ScreenAlbedoState>,
  ) {
-    // Only start the countdown if it's not already active
     if !countdown.is_active {
         countdown.is_active = true;
         countdown.current_count = 0; // Reset the current count
@@ -188,10 +187,10 @@ pub fn screen_albedo(
 
             countdown.current_count += 1;
             let color_count = MeshColor::VARIANT_COUNT;
-            if op_index.index == color_count {
-                op_index.index = 0;
+            if op_index.screen_color >= color_count {
+                op_index.screen_color = 0;
             } else {
-                op_index.index += 1;
+                op_index.screen_color += 1;
             }
             // If we've completed all iterations, stop the countdown
             if countdown.current_count >= countdown.loop_count {
@@ -244,7 +243,7 @@ pub fn spawn_gltf(
     })
     .insert(ColorChange)
     .insert(Interactable); // Custom marker to identify this as interactable
-    
+
     // Circular plane
     commands.spawn((
         PbrBundle {

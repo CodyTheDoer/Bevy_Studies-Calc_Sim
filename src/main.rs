@@ -42,13 +42,25 @@ fn main() {
                 update_var_text,
                 handle_asset_events,
                 screen_albedo, 
-                // update_screen_albedo.run_if(input_just_released(MouseButton::Right)),
+                query_info.run_if(input_just_released(MouseButton::Right)),
                 update_screen_albedo.run_if(|state: Res<ScreenAlbedoState>| state.should_run()),
                 pan_orbit_camera.run_if(any_with_component::<PanOrbitState>),
                 fire_ray.run_if(input_just_released(MouseButton::Left)),
             )
         )
         .run();
+}
+
+fn query_info(
+    op: Res<OpIndex>,
+    interactable_query: Query<Entity, With<Interactable>>,
+) { /*
+    info!("Template: {:?}", template);
+    */
+    
+    info!("\n");
+    info!("OpIndex: {:?}", op.index);
+    info!("Interactable_query: {:?}", interactable_query);
 }
 
 

@@ -36,17 +36,18 @@ impl FlexInput for i32 {
 pub struct OpIndex {
     pub index: u32,
     pub last_op: u32,
+    pub screen_color: u32,
 }
 
 impl OpIndex {
     pub fn new(    
         // mut op: ResMut<OpIndex>,
     ) -> Self {
-        let index: u32 = 0;
-        let last_op: u32 = 0;
+        let (index, last_op, screen_color): (u32, u32, u32) = (0, 0, 0);
         OpIndex {
             index,
             last_op,
+            screen_color,
         }
     }
 }
@@ -220,9 +221,6 @@ impl SumCurrent {
             };
 
             sum.sum = new_sum;
-            
-            // info!("update_sum: var.vec: {:?}", var.var);
-            // info!("update_sum: 2 Sum: {:?}", sum.sum);
         }
     }
 
