@@ -191,7 +191,7 @@ pub fn spawn_gltf(
     sum: Res<SumCurrent>,
     mut op_index: ResMut<OpIndex>,
 ) {
-    let gltf = ass.load("calculator.glb#Scene0");
+    let gltf = ass.load("calculator.glb#Scene0"); // Screen text is set in calculator.rs via CurrentMeshColor::process_entity_children
 
     // Scene
     commands.spawn(SceneBundle {
