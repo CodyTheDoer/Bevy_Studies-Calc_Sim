@@ -7,25 +7,74 @@ use crate::cam_world::CameraWorld;
 use crate::{sum_calc_operations};
 use crate::{OpIndex, SumCurrent, SumVariable};
 
+// --- Declarations: Structs --- //
+#[derive(Component)] 
+pub struct ButtonAnimation {
+    progress: f32,
+    duration: f32,
+    initial_scale: Vec3,
+    target_scale: Vec3,
+    target_entity: Entity,
+}
+
+#[derive(Component)]
+pub struct ColorChange;
+
+#[derive(Resource)]
+pub struct Countdown {
+    pub timer: Timer,           // Set single timer for countdown
+    pub loop_count: u32,        // Number of loops, currently tied to the varient_count to loop through all dynamically
+    pub current_count: u32,     // Tracks where in the loop you are
+    pub is_active: bool,        // Tracks if the loop is active
+}
+
 #[derive(Default, Resource)]
 pub struct CurrentMeshColor;
 
+#[derive(Component)]
+pub struct Ground;
+
 #[derive(Asset, Component, TypePath)]
 pub struct Interactable; 
+
+#[derive(Component)]
+pub struct Loaded;
+
+#[derive(Resource)]
+pub struct TargetEntity {
+    target_entity: u32,
+}
 
 #[derive(Resource)]
 pub struct ScreenAlbedoState {
     state: u32,
 }
 
-#[derive(Component)]
-pub struct ColorChange;
+// --- Declarations: Enums --- //
 
-#[derive(Component)]
-pub struct Ground;
-
-#[derive(Component)]
-pub struct Loaded;
+#[derive(Debug)]
+pub enum CalcButtons {
+    Sum,
+    Clear,
+    Decimal,
+    Add,
+    Subtract,
+    Multiply,
+    Divide,
+    Num0,
+    Num1,
+    Num2,
+    Num3,
+    Num4,
+    Num5,
+    Num6,
+    Num7,
+    Num8,
+    Num9,
+    NoneButtonBody,
+    NoneButtonScreen,
+    NoneButtonLightPanel,
+}
 
 #[derive(Debug, Resource)]
 pub enum MeshColor { // If changed update VARIANT_COUNT 
@@ -34,6 +83,40 @@ pub enum MeshColor { // If changed update VARIANT_COUNT
     Red,
     Green,
     Blue,
+}
+
+// --- Declarations: Implementations (impl) --- //
+
+impl CalcButtons {
+    pub fn from_index(index: u32) -> Option<CalcButtons> {
+        match index {
+            45 => Some(CalcButtons::Sum),
+            51 => Some(CalcButtons::Clear),
+            53 => Some(CalcButtons::Decimal),
+            46 => Some(CalcButtons::Add),
+            47 => Some(CalcButtons::Subtract),
+            48 => Some(CalcButtons::Multiply),
+            49 => Some(CalcButtons::Divide),
+            52 => Some(CalcButtons::Num0),
+            55 => Some(CalcButtons::Num1),
+            56 => Some(CalcButtons::Num2),
+            57 => Some(CalcButtons::Num3),
+            59 => Some(CalcButtons::Num4),
+            60 => Some(CalcButtons::Num5),
+            61 => Some(CalcButtons::Num6),
+            63 => Some(CalcButtons::Num7),
+            64 => Some(CalcButtons::Num8),
+            65 => Some(CalcButtons::Num9),
+            42 => Some(CalcButtons::NoneButtonBody),
+            67 => Some(CalcButtons::NoneButtonScreen),
+            68 => Some(CalcButtons::NoneButtonLightPanel),
+            _ => None, // Handle invalid index
+        }
+    }
+
+    pub fn button_info(&self) {
+        info!("Button Clicked: {:?}", self);
+    }
 }
 
 impl MeshColor {
@@ -49,6 +132,34 @@ impl ScreenAlbedoState {
 
     pub fn should_run(&self) -> bool {
         self.state == 1
+    }
+}
+
+impl TargetEntity {
+    pub fn new() -> Self {
+        let target_entity: u32 = 0;
+        TargetEntity {
+            target_entity,
+        }
+    }
+}
+
+impl Countdown {
+    pub fn new() -> Self {
+        Self {
+            timer: Timer::from_seconds(0.125, TimerMode::Once), // Set single timer for countdown
+            loop_count: MeshColor::VARIANT_COUNT + 1, // +1 accounts for indexed logic
+            current_count: 0,
+            is_active: false,  // Initially inactive
+        }
+    }
+}
+
+// --- Declarations: Implementations for x --- //
+
+impl Default for Countdown {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -145,243 +256,7 @@ impl CurrentMeshColor {
     }
 }
 
-/// This system starts the countdown when the mouse is clicked.
-pub fn update_screen_albedo(
-    mut countdown: ResMut<Countdown>,
-    mut screen_albedo_state: ResMut<ScreenAlbedoState>,
- ) {
-    if !countdown.is_active {
-        countdown.is_active = true;
-        countdown.current_count = 0; // Reset the current count
-        countdown.timer.reset();  // Reset the timer to start fresh
-    }
-    screen_albedo_state.state = 0;
-}
-
-/// This system controls ticking the timer within the countdown resource and
-/// handling its state.
-pub fn screen_albedo(
-    time: Res<Time>, 
-    mut countdown: ResMut<Countdown>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-    children_query: Query<&Children>,
-    material_query: Query<&Handle<StandardMaterial>>,
-    color_change_cube_query: Query<(Entity, &Handle<Scene>), (With<ColorChange>, With<Loaded>)>,
-    mut op_index: ResMut<OpIndex>,
-) {
-    // Only tick the timer if the countdown is active
-    if countdown.is_active {
-        // Tick the timer
-        countdown.timer.tick(time.delta());
-
-        // Check if the timer has finished for the current iteration
-        if countdown.timer.finished() {
-            // Update the albedo before we cycle color
-            CurrentMeshColor::update_gltf_material_color(
-                children_query,
-                color_change_cube_query,
-                materials,
-                material_query,
-                &mut op_index,
-            );
-
-            countdown.current_count += 1;
-            let color_count = MeshColor::VARIANT_COUNT;
-            if op_index.screen_color >= color_count {
-                op_index.screen_color = 0;
-            } else {
-                op_index.screen_color += 1;
-            }
-            // If we've completed all iterations, stop the countdown
-            if countdown.current_count >= countdown.loop_count {
-                countdown.is_active = false;
-            } else {
-                // Otherwise, reset the timer for the next iteration
-                countdown.timer.reset();
-            }
-        } 
-    }
-}
-
-#[derive(Resource)]
-pub struct Countdown {
-    pub timer: Timer,           // Set single timer for countdown
-    pub loop_count: u32,        // Number of loops, currently tied to the varient_count to loop through all dynamically
-    pub current_count: u32,     // Tracks where in the loop you are
-    pub is_active: bool,        // Tracks if the loop is active
-}
-
-impl Countdown {
-    pub fn new() -> Self {
-        Self {
-            timer: Timer::from_seconds(0.125, TimerMode::Once), // Set single timer for countdown
-            loop_count: MeshColor::VARIANT_COUNT + 1, // +1 accounts for indexed logic
-            current_count: 0,
-            is_active: false,  // Initially inactive
-        }
-    }
-}
-
-impl Default for Countdown {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-pub fn spawn_gltf(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-    ass: Res<AssetServer>,
-) {
-    let gltf = ass.load("calculator.glb#Scene0");
-
-    // Scene
-    commands.spawn(SceneBundle {
-        scene: gltf,
-        ..Default::default()
-    })
-    .insert(ColorChange)
-    .insert(Interactable); // Custom marker to identify this as interactable
-
-    // Circular plane
-    commands.spawn((
-        PbrBundle {
-            mesh: meshes.add(Circle::new(2000.)).into(),
-            material: materials.add(Color::srgb(0.1, 0.0, 0.1)),
-            transform: Transform {
-                translation: Vec3::new(0.0, -0.65, 0.0),
-                rotation: Quat::from_rotation_x(-2.0 * (std::f32::consts::PI / 4.0)), //4 = 45 degrees
-                ..default()
-            },
-            ..default()
-        },
-        Ground,
-    ));
-
-    // Light
-    commands.spawn(DirectionalLightBundle {
-        transform: Transform::from_translation(Vec3::ONE).looking_at(Vec3::ZERO, Vec3::Y),
-        ..default()
-    });
-}
-
-#[derive(Resource)]
-pub struct TargetEntity {
-    target_entity: u32,
-}
-
-impl TargetEntity {
-    pub fn new() -> Self {
-        let target_entity: u32 = 0;
-        TargetEntity {
-            target_entity,
-        }
-    }
-}
-
-#[derive(Component)] 
-pub struct ButtonAnimation {
-    progress: f32,
-    duration: f32,
-    initial_scale: Vec3,
-    target_scale: Vec3,
-    target_entity: Entity,
-}
-
-pub fn button_animation_system(
-    time: Res<Time>,
-    mut query: Query<(&mut Transform, &mut ButtonAnimation)>,
-    mut commands: Commands,
-) {
-    for (mut transform, mut animation) in query.iter_mut() {
-        animation.progress += time.delta_seconds();
-
-        let factor = (animation.progress / animation.duration).min(1.0);
-        transform.scale = animation.initial_scale.lerp(animation.target_scale, factor);
-
-        if factor >= 1.0 {
-            // Remove the animation component once the animation is complete
-            commands.entity(animation.target_entity).remove::<ButtonAnimation>();
-        }
-    }
-}
-
-#[derive(Debug)]
-pub enum CalcButtons {
-    Sum,
-    Clear,
-    Decimal,
-    Add,
-    Subtract,
-    Multiply,
-    Divide,
-    Num0,
-    Num1,
-    Num2,
-    Num3,
-    Num4,
-    Num5,
-    Num6,
-    Num7,
-    Num8,
-    Num9,
-    NoneButtonBody,
-    NoneButtonScreen,
-    NoneButtonLightPanel,
-}
-
-impl CalcButtons {
-    pub fn from_index(index: u32) -> Option<CalcButtons> {
-        match index {
-            45 => Some(CalcButtons::Sum),
-            51 => Some(CalcButtons::Clear),
-            53 => Some(CalcButtons::Decimal),
-            46 => Some(CalcButtons::Add),
-            47 => Some(CalcButtons::Subtract),
-            48 => Some(CalcButtons::Multiply),
-            49 => Some(CalcButtons::Divide),
-            52 => Some(CalcButtons::Num0),
-            55 => Some(CalcButtons::Num1),
-            56 => Some(CalcButtons::Num2),
-            57 => Some(CalcButtons::Num3),
-            59 => Some(CalcButtons::Num4),
-            60 => Some(CalcButtons::Num5),
-            61 => Some(CalcButtons::Num6),
-            63 => Some(CalcButtons::Num7),
-            64 => Some(CalcButtons::Num8),
-            65 => Some(CalcButtons::Num9),
-            42 => Some(CalcButtons::NoneButtonBody),
-            67 => Some(CalcButtons::NoneButtonScreen),
-            68 => Some(CalcButtons::NoneButtonLightPanel),
-            _ => None, // Handle invalid index
-        }
-    }
-
-    pub fn button_info(&self) {
-        info!("Button Clicked: {:?}", self);
-    }
-}
-
-pub fn click_animation(
-    commands: &mut Commands,
-    entity: Entity,
-) {
-    commands.entity(entity).insert(ButtonAnimation {
-        progress: 0.0,
-        duration: 0.1,
-        initial_scale: Vec3::ONE,
-        target_scale: Vec3::new(1.0, 0.88, 1.0),
-        target_entity: entity, // Use the current entity ID
-    });
-    commands.entity(entity).insert(ButtonAnimation {
-        progress: 0.0,
-        duration: 0.18,
-        initial_scale: Vec3::new(1.0, 0.88, 1.0),
-        target_scale: Vec3::ONE,
-        target_entity: entity, // Use the current entity ID
-    });
-}
+// --- Declarations: Functions --- //
 
 pub fn fire_ray(
     mut commands: Commands,
@@ -553,4 +428,154 @@ pub fn fire_ray(
             } 
         }
     }
+}
+
+pub fn handle_asset_events(
+    mut commands: Commands,
+    mut events: EventReader<AssetEvent<Scene>>,
+    color_change_query: Query<(Entity, &Handle<Scene>), With<ColorChange>>,
+) {
+    for event in events.read() {
+        if let AssetEvent::Added { id } = event {
+            for (entity, scene_handle) in color_change_query.iter() {
+                if *id == scene_handle.id() {
+                    commands.entity(entity).insert(Loaded);
+                }
+            }
+        }
+    }
+}
+
+/// This system starts the countdown when the mouse is clicked.
+pub fn update_screen_albedo(
+    mut countdown: ResMut<Countdown>,
+    mut screen_albedo_state: ResMut<ScreenAlbedoState>,
+ ) {
+    if !countdown.is_active {
+        countdown.is_active = true;
+        countdown.current_count = 0; // Reset the current count
+        countdown.timer.reset();  // Reset the timer to start fresh
+    }
+    screen_albedo_state.state = 0;
+}
+
+/// This system controls ticking the timer within the countdown resource and
+/// handling its state.
+pub fn screen_albedo(
+    time: Res<Time>, 
+    mut countdown: ResMut<Countdown>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    children_query: Query<&Children>,
+    material_query: Query<&Handle<StandardMaterial>>,
+    color_change_cube_query: Query<(Entity, &Handle<Scene>), (With<ColorChange>, With<Loaded>)>,
+    mut op_index: ResMut<OpIndex>,
+) {
+    // Only tick the timer if the countdown is active
+    if countdown.is_active {
+        // Tick the timer
+        countdown.timer.tick(time.delta());
+
+        // Check if the timer has finished for the current iteration
+        if countdown.timer.finished() {
+            // Update the albedo before we cycle color
+            CurrentMeshColor::update_gltf_material_color(
+                children_query,
+                color_change_cube_query,
+                materials,
+                material_query,
+                &mut op_index,
+            );
+
+            countdown.current_count += 1;
+            let color_count = MeshColor::VARIANT_COUNT;
+            if op_index.screen_color >= color_count {
+                op_index.screen_color = 0;
+            } else {
+                op_index.screen_color += 1;
+            }
+            // If we've completed all iterations, stop the countdown
+            if countdown.current_count >= countdown.loop_count {
+                countdown.is_active = false;
+            } else {
+                // Otherwise, reset the timer for the next iteration
+                countdown.timer.reset();
+            }
+        } 
+    }
+}
+
+pub fn spawn_gltf(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    ass: Res<AssetServer>,
+) {
+    let gltf = ass.load("calculator.glb#Scene0");
+
+    // Scene
+    commands.spawn(SceneBundle {
+        scene: gltf,
+        ..Default::default()
+    })
+    .insert(ColorChange)
+    .insert(Interactable); // Custom marker to identify this as interactable
+
+    // Circular plane
+    commands.spawn((
+        PbrBundle {
+            mesh: meshes.add(Circle::new(2000.)).into(),
+            material: materials.add(Color::srgb(0.1, 0.0, 0.1)),
+            transform: Transform {
+                translation: Vec3::new(0.0, -0.65, 0.0),
+                rotation: Quat::from_rotation_x(-2.0 * (std::f32::consts::PI / 4.0)), //4 = 45 degrees
+                ..default()
+            },
+            ..default()
+        },
+        Ground,
+    ));
+
+    // Light
+    commands.spawn(DirectionalLightBundle {
+        transform: Transform::from_translation(Vec3::ONE).looking_at(Vec3::ZERO, Vec3::Y),
+        ..default()
+    });
+}
+
+pub fn button_animation_system(
+    time: Res<Time>,
+    mut query: Query<(&mut Transform, &mut ButtonAnimation)>,
+    mut commands: Commands,
+) {
+    for (mut transform, mut animation) in query.iter_mut() {
+        animation.progress += time.delta_seconds();
+
+        let factor = (animation.progress / animation.duration).min(1.0);
+        transform.scale = animation.initial_scale.lerp(animation.target_scale, factor);
+
+        if factor >= 1.0 {
+            // Remove the animation component once the animation is complete
+            commands.entity(animation.target_entity).remove::<ButtonAnimation>();
+        }
+    }
+}
+
+pub fn click_animation(
+    commands: &mut Commands,
+    entity: Entity,
+) {
+    commands.entity(entity).insert(ButtonAnimation {
+        progress: 0.0,
+        duration: 0.1,
+        initial_scale: Vec3::ONE,
+        target_scale: Vec3::new(1.0, 0.88, 1.0),
+        target_entity: entity, // Use the current entity ID
+    });
+    commands.entity(entity).insert(ButtonAnimation {
+        progress: 0.0,
+        duration: 0.18,
+        initial_scale: Vec3::new(1.0, 0.88, 1.0),
+        target_scale: Vec3::ONE,
+        target_entity: entity, // Use the current entity ID
+    });
 }
