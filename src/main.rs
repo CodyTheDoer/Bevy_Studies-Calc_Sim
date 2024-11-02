@@ -8,6 +8,9 @@ use bevy_mod_raycast::prelude::*;
 
 use calc_sim::{FlexInput, OpIndex, SumCurrent, SumVariable};
 
+use calc_sim::calculator::{screen_albedo, update_screen_albedo};
+use calc_sim::calculator::{CalcButtons, CurrentMeshColor, MeshColor, ScreenAlbedoState};
+
 use calc_sim::cam_ui::{setup_ui, update_sum_text, update_var_text};
 use calc_sim::cam_ui::CameraUi;
 
@@ -16,8 +19,8 @@ use calc_sim::cam_world::{CameraWorld, PanOrbitState};
 
 use calc_sim::cam_calc_screen::setup_calc_interface_projection;
 
-use calc_sim::game_env::{button_animation_system, fire_ray, handle_asset_events, screen_albedo, spawn_gltf, update_screen_albedo};
-use calc_sim::game_env::{CalcButtons, Countdown, CurrentMeshColor, Interactable, Loaded, ScreenAlbedoState};
+use calc_sim::game_env::{button_animation_system, fire_ray, handle_asset_events, spawn_gltf};
+use calc_sim::game_env::{Countdown, Interactable, Loaded};
 
 fn main() {
     App::new()

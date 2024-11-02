@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 
+pub mod calculator;
 pub mod cam_ui;
 pub mod cam_world;
 pub mod cam_calc_screen;
