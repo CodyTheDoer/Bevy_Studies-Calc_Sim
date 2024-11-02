@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 pub mod cam_ui;
 pub mod cam_world;
+pub mod cam_calc_screen;
 pub mod game_env;
 
 pub trait FlexInput {
