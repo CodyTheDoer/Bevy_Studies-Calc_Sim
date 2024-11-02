@@ -93,6 +93,8 @@ impl CalcButtons {
         index: u32,
     ) -> Option<CalcButtons> {
         let mut button_map = HashMap::new();
+
+        info!("Entities: {:?}", op_index.entities);
     
         button_map.insert(40 + op_index.entities, CalcButtons::Sum);
         button_map.insert(46 + op_index.entities, CalcButtons::Clear);
@@ -239,7 +241,8 @@ impl CurrentMeshColor {
         op_index: &mut ResMut<OpIndex>,
     ) {
         for &child in children.iter() {
-            if child.index() == 67 { // This targets the screen component specifically, still learning about glb files and how to extract names s I don't have a more dynamic way of handling it for now.
+            // dynamically target the Screen Entity and apply Albedo changes directly.
+            if child.index() == 62 + op_index.entities { 
                 if let Ok(material_handle) = material_query.get(child) {
                     if let Some(material) = materials.get_mut(material_handle) {
                         material.base_color = CurrentMeshColor::update_current_mesh_color(op_index);
@@ -544,7 +547,7 @@ pub fn screen_albedo(
     mut materials: ResMut<Assets<StandardMaterial>>,
     children_query: Query<&Children>,
     material_query: Query<&Handle<StandardMaterial>>,
-    color_change_cube_query: Query<(Entity, &Handle<Scene>), (With<Interactable>, With<Loaded>)>,
+    color_change_query: Query<(Entity, &Handle<Scene>), (With<Interactable>, With<Loaded>)>,
     mut op_index: ResMut<OpIndex>,
 ) {
     // Only tick the timer if the countdown is active
@@ -557,7 +560,7 @@ pub fn screen_albedo(
             // Update the albedo before we cycle color
             CurrentMeshColor::update_gltf_material_color(
                 children_query,
-                color_change_cube_query,
+                color_change_query,
                 materials,
                 material_query,
                 &mut op_index,
