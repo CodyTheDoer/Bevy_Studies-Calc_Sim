@@ -94,26 +94,26 @@ impl CalcButtons {
     ) -> Option<CalcButtons> {
         let mut button_map = HashMap::new();
     
-        button_map.insert(43 + op_index.entities, CalcButtons::Sum);
-        button_map.insert(49 + op_index.entities, CalcButtons::Clear);
-        button_map.insert(51 + op_index.entities, CalcButtons::Decimal);
-        button_map.insert(44 + op_index.entities, CalcButtons::Add);
-        button_map.insert(45 + op_index.entities, CalcButtons::Subtract);
-        button_map.insert(46 + op_index.entities, CalcButtons::Multiply);
-        button_map.insert(47 + op_index.entities, CalcButtons::Divide);
-        button_map.insert(50 + op_index.entities, CalcButtons::Num0);
-        button_map.insert(53 + op_index.entities, CalcButtons::Num1);
-        button_map.insert(54 + op_index.entities, CalcButtons::Num2);
-        button_map.insert(55 + op_index.entities, CalcButtons::Num3);
-        button_map.insert(57 + op_index.entities, CalcButtons::Num4);
-        button_map.insert(58 + op_index.entities, CalcButtons::Num5);
-        button_map.insert(59 + op_index.entities, CalcButtons::Num6);
-        button_map.insert(61 + op_index.entities, CalcButtons::Num7);
-        button_map.insert(62 + op_index.entities, CalcButtons::Num8);
-        button_map.insert(63 + op_index.entities, CalcButtons::Num9);
-        button_map.insert(40 + op_index.entities, CalcButtons::NoneButtonBody);
-        button_map.insert(65 + op_index.entities, CalcButtons::NoneButtonScreen);
-        button_map.insert(66 + op_index.entities, CalcButtons::NoneButtonLightPanel);
+        button_map.insert(40 + op_index.entities, CalcButtons::Sum);
+        button_map.insert(46 + op_index.entities, CalcButtons::Clear);
+        button_map.insert(48 + op_index.entities, CalcButtons::Decimal);
+        button_map.insert(41 + op_index.entities, CalcButtons::Add);
+        button_map.insert(42 + op_index.entities, CalcButtons::Subtract);
+        button_map.insert(43 + op_index.entities, CalcButtons::Multiply);
+        button_map.insert(44 + op_index.entities, CalcButtons::Divide);
+        button_map.insert(47 + op_index.entities, CalcButtons::Num0);
+        button_map.insert(50 + op_index.entities, CalcButtons::Num1);
+        button_map.insert(51 + op_index.entities, CalcButtons::Num2);
+        button_map.insert(52 + op_index.entities, CalcButtons::Num3);
+        button_map.insert(54 + op_index.entities, CalcButtons::Num4);
+        button_map.insert(55 + op_index.entities, CalcButtons::Num5);
+        button_map.insert(56 + op_index.entities, CalcButtons::Num6);
+        button_map.insert(58 + op_index.entities, CalcButtons::Num7);
+        button_map.insert(59 + op_index.entities, CalcButtons::Num8);
+        button_map.insert(60 + op_index.entities, CalcButtons::Num9);
+        button_map.insert(37 + op_index.entities, CalcButtons::NoneButtonBody);
+        button_map.insert(62 + op_index.entities, CalcButtons::NoneButtonScreen);
+        button_map.insert(63 + op_index.entities, CalcButtons::NoneButtonLightPanel);
     
         button_map.get(&index).cloned()
     }
@@ -318,7 +318,7 @@ pub fn spawn_gltf(
         Text2dBundle{
             text: Text {
                 sections: vec![TextSection::new(
-                    "Sum: ".to_owned(),// + &sum.sum.to_string(),
+                    "Sum: Placeholder",// .to_owned(),// + &sum.sum.to_string(),
                     smaller_text_style.clone(),
                 )],
                 ..default()

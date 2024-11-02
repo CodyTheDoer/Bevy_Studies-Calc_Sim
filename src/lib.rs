@@ -43,7 +43,7 @@ pub struct OpIndex {
 impl OpIndex {
     pub fn new(    
     ) -> Self {
-        let (index, last_op, screen_color, entities): (u32, u32, u32, u32) = (0, 0, 0, 0);
+        let (index, last_op, screen_color, entities): (u32, u32, u32, u32) = (0, 0, 0, 3); // Startup Entities cannot be captured so they're hardcoded.
         OpIndex {
             index,
             last_op,
