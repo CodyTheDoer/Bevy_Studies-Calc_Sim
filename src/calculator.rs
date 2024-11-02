@@ -6,6 +6,67 @@ use crate::game_env::{Countdown, Interactable, Loaded};
 
 use std::collections::HashMap;
 
+/// This system starts the countdown when the mouse is clicked.
+pub fn update_screen_albedo(
+    mut countdown: ResMut<Countdown>,
+    mut screen_albedo_state: ResMut<ScreenAlbedoState>,
+ ) {
+    if !countdown.is_active {
+        countdown.is_active = true;
+        countdown.current_count = 0; // Reset the current count
+        countdown.timer.reset();  // Reset the timer to start fresh
+    }
+    screen_albedo_state.state = 0;
+}
+
+/// This system controls ticking the timer within the countdown resource and
+/// handling its state.
+pub fn screen_albedo(
+    time: Res<Time>, 
+    mut countdown: ResMut<Countdown>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    children_query: Query<&Children>,
+    material_query: Query<&Handle<StandardMaterial>>,
+    color_change_query: Query<(Entity, &Handle<Scene>), (With<Interactable>, With<Loaded>)>,
+    mut op_index: ResMut<OpIndex>,
+    mut calc_ui_material: ResMut<CalcUIMaterialHandle>,
+) {
+    // Update the albedo before we cycle color
+    CurrentMeshColor::update_gltf_material_color(
+        children_query,
+        color_change_query,
+        materials,
+        material_query,
+        &mut op_index,
+        &mut calc_ui_material,
+    );
+    
+    // Only tick the timer if the countdown is active
+    if countdown.is_active {
+        // Tick the timer
+        countdown.timer.tick(time.delta());
+
+        // Check if the timer has finished for the current iteration
+        if countdown.timer.finished() {
+
+            countdown.current_count += 1;
+            let color_count = MeshColor::VARIANT_COUNT;
+            if op_index.screen_color >= color_count {
+                op_index.screen_color = 0;
+            } else {
+                op_index.screen_color += 1;
+            }
+            // If we've completed all iterations, stop the countdown
+            if countdown.current_count >= countdown.loop_count {
+                countdown.is_active = false;
+            } else {
+                // Otherwise, reset the timer for the next iteration
+                countdown.timer.reset();
+            }
+        } 
+    }
+}
+
 #[derive(Default, Resource)]
 pub struct CurrentMeshColor;
 
@@ -201,66 +262,5 @@ impl CalcButtons {
 
     pub fn button_info(&self) {
         info!("Button Clicked: {:?}", self);
-    }
-}
-
-/// This system starts the countdown when the mouse is clicked.
-pub fn update_screen_albedo(
-    mut countdown: ResMut<Countdown>,
-    mut screen_albedo_state: ResMut<ScreenAlbedoState>,
- ) {
-    if !countdown.is_active {
-        countdown.is_active = true;
-        countdown.current_count = 0; // Reset the current count
-        countdown.timer.reset();  // Reset the timer to start fresh
-    }
-    screen_albedo_state.state = 0;
-}
-
-/// This system controls ticking the timer within the countdown resource and
-/// handling its state.
-pub fn screen_albedo(
-    time: Res<Time>, 
-    mut countdown: ResMut<Countdown>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-    children_query: Query<&Children>,
-    material_query: Query<&Handle<StandardMaterial>>,
-    color_change_query: Query<(Entity, &Handle<Scene>), (With<Interactable>, With<Loaded>)>,
-    mut op_index: ResMut<OpIndex>,
-    mut calc_ui_material: ResMut<CalcUIMaterialHandle>,
-) {
-    // Update the albedo before we cycle color
-    CurrentMeshColor::update_gltf_material_color(
-        children_query,
-        color_change_query,
-        materials,
-        material_query,
-        &mut op_index,
-        &mut calc_ui_material,
-    );
-    
-    // Only tick the timer if the countdown is active
-    if countdown.is_active {
-        // Tick the timer
-        countdown.timer.tick(time.delta());
-
-        // Check if the timer has finished for the current iteration
-        if countdown.timer.finished() {
-
-            countdown.current_count += 1;
-            let color_count = MeshColor::VARIANT_COUNT;
-            if op_index.screen_color >= color_count {
-                op_index.screen_color = 0;
-            } else {
-                op_index.screen_color += 1;
-            }
-            // If we've completed all iterations, stop the countdown
-            if countdown.current_count >= countdown.loop_count {
-                countdown.is_active = false;
-            } else {
-                // Otherwise, reset the timer for the next iteration
-                countdown.timer.reset();
-            }
-        } 
     }
 }

@@ -6,12 +6,6 @@ use bevy::render::{
     },
 };
 
-#[derive(Resource)]
-pub struct CalcUIMaterialHandle {
-    pub material_handle: Handle<StandardMaterial>,
-    pub image_handle: Handle<Image>,  // Add this to store the image handle
-}
-
 pub fn setup_calc_interface_projection(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -102,4 +96,10 @@ pub fn setup_calc_interface_projection(
         material_handle: calc_ui_handle,
         image_handle,
     });
+}
+
+#[derive(Resource)]
+pub struct CalcUIMaterialHandle {
+    pub material_handle: Handle<StandardMaterial>,
+    pub image_handle: Handle<Image>,  // Add this to store the image handle
 }

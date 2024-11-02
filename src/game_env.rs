@@ -11,123 +11,6 @@ use crate::cam_calc_screen::CalcUIMaterialHandle;
 use crate::{sum_calc_operations};
 use crate::{OpIndex, SumCurrent, SumVariable};
 
-// --- Declarations: Structs --- //
-
-#[derive(Component)] 
-pub struct ButtonAnimation {
-    progress: f32,
-    duration: f32,
-    initial_scale: Vec3,
-    target_scale: Vec3,
-    target_entity: Entity,
-}
-
-#[derive(Resource)]
-pub struct Countdown {
-    pub timer: Timer,           // Set single timer for countdown
-    pub loop_count: u32,        // Number of loops, currently tied to the varient_count to loop through all dynamically
-    pub current_count: u32,     // Tracks where in the loop you are
-    pub is_active: bool,        // Tracks if the loop is active
-}
-
-impl Countdown {
-    pub fn new() -> Self {
-        Self {
-            timer: Timer::from_seconds(0.125, TimerMode::Once), // Set single timer for countdown
-            loop_count: MeshColor::VARIANT_COUNT + 1, // +1 accounts for indexed logic
-            current_count: 0,
-            is_active: false,  // Initially inactive
-        }
-    }
-}
-
-// --- Declarations: Implementations for x --- //
-
-impl Default for Countdown {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-#[derive(Component)]
-pub struct Ground;
-
-#[derive(Asset, Component, TypePath)]
-pub struct Interactable; 
-
-#[derive(Component)]
-pub struct Loaded;
-
-#[derive(Resource)]
-pub struct TargetEntity {
-    target_entity: u32,
-}
-
-impl TargetEntity {
-    pub fn new() -> Self {
-        let target_entity: u32 = 0;
-        TargetEntity {
-            target_entity,
-        }
-    }
-}
-
-
-// --- Declarations: Functions --- //
-
-pub fn spawn_gltf(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-    ass: Res<AssetServer>,
-    sum: Res<SumCurrent>,
-    mut op_index: ResMut<OpIndex>,
-) {
-    let gltf = ass.load("calculator.glb#Scene0");
-
-    // Scene
-    commands.spawn(SceneBundle {
-        scene: gltf,
-        ..Default::default()
-    })
-    .insert(Interactable); // Custom marker to identify this as interactable
-
-    // Circular plane
-    commands.spawn((
-        PbrBundle {
-            mesh: meshes.add(Circle::new(2000.)).into(),
-            material: materials.add(Color::srgb(0.1, 0.0, 0.1)),
-            transform: Transform {
-                translation: Vec3::new(0.0, -0.65, 0.0),
-                rotation: Quat::from_rotation_x(-2.0 * (std::f32::consts::PI / 4.0)), //4 = 45 degrees
-                ..default()
-            },
-            ..default()
-        },
-        Ground,
-    ));
-    op_index.add_entity();
-
-    // Light
-    commands.spawn(DirectionalLightBundle {
-        transform: Transform::from_translation(Vec3::ONE).looking_at(Vec3::ZERO, Vec3::Y),
-        ..default()
-    });
-    op_index.add_entity();
-
-    let font = ass.load("fonts/MatrixtypeDisplay-KVELZ.ttf");
-    let text_style = TextStyle {
-        font: font.clone(),
-        font_size: 42.0,
-        ..default()
-    };
-    let smaller_text_style = TextStyle {
-        font: font.clone(),
-        font_size: 25.0,
-        ..default()
-    };
-}
-
 pub fn fire_ray(
     mut commands: Commands,
     mut raycast: Raycast,
@@ -300,6 +183,59 @@ pub fn fire_ray(
     }
 }
 
+pub fn spawn_gltf(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    ass: Res<AssetServer>,
+    sum: Res<SumCurrent>,
+    mut op_index: ResMut<OpIndex>,
+) {
+    let gltf = ass.load("calculator.glb#Scene0");
+
+    // Scene
+    commands.spawn(SceneBundle {
+        scene: gltf,
+        ..Default::default()
+    })
+    .insert(Interactable); // Custom marker to identify this as interactable
+
+    // Circular plane
+    commands.spawn((
+        PbrBundle {
+            mesh: meshes.add(Circle::new(2000.)).into(),
+            material: materials.add(Color::srgb(0.1, 0.0, 0.1)),
+            transform: Transform {
+                translation: Vec3::new(0.0, -0.65, 0.0),
+                rotation: Quat::from_rotation_x(-2.0 * (std::f32::consts::PI / 4.0)), //4 = 45 degrees
+                ..default()
+            },
+            ..default()
+        },
+        Ground,
+    ));
+    op_index.add_entity();
+
+    // Light
+    commands.spawn(DirectionalLightBundle {
+        transform: Transform::from_translation(Vec3::ONE).looking_at(Vec3::ZERO, Vec3::Y),
+        ..default()
+    });
+    op_index.add_entity();
+
+    let font = ass.load("fonts/MatrixtypeDisplay-KVELZ.ttf");
+    let text_style = TextStyle {
+        font: font.clone(),
+        font_size: 42.0,
+        ..default()
+    };
+    let smaller_text_style = TextStyle {
+        font: font.clone(),
+        font_size: 25.0,
+        ..default()
+    };
+}
+
 pub fn handle_asset_events(
     mut commands: Commands,
     mut events: EventReader<AssetEvent<Scene>>,
@@ -352,4 +288,61 @@ pub fn click_animation(
         target_scale: Vec3::ONE,
         target_entity: entity, // Use the current entity ID
     });
+}
+
+#[derive(Component)] 
+pub struct ButtonAnimation {
+    progress: f32,
+    duration: f32,
+    initial_scale: Vec3,
+    target_scale: Vec3,
+    target_entity: Entity,
+}
+
+#[derive(Resource)]
+pub struct Countdown {
+    pub timer: Timer,           // Set single timer for countdown
+    pub loop_count: u32,        // Number of loops, currently tied to the varient_count to loop through all dynamically
+    pub current_count: u32,     // Tracks where in the loop you are
+    pub is_active: bool,        // Tracks if the loop is active
+}
+
+impl Countdown {
+    pub fn new() -> Self {
+        Self {
+            timer: Timer::from_seconds(0.125, TimerMode::Once), // Set single timer for countdown
+            loop_count: MeshColor::VARIANT_COUNT + 1, // +1 accounts for indexed logic
+            current_count: 0,
+            is_active: false,  // Initially inactive
+        }
+    }
+}
+
+impl Default for Countdown {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[derive(Component)]
+pub struct Ground;
+
+#[derive(Asset, Component, TypePath)]
+pub struct Interactable; 
+
+#[derive(Component)]
+pub struct Loaded;
+
+#[derive(Resource)]
+pub struct TargetEntity {
+    target_entity: u32,
+}
+
+impl TargetEntity {
+    pub fn new() -> Self {
+        let target_entity: u32 = 0;
+        TargetEntity {
+            target_entity,
+        }
+    }
 }

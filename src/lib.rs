@@ -6,6 +6,55 @@ pub mod cam_world;
 pub mod cam_calc_screen;
 pub mod game_env;
 
+pub fn sum_calc_operations(
+    op: &mut ResMut<OpIndex>,
+    var: &mut ResMut<SumVariable>,
+    sum: &mut ResMut<SumCurrent>,
+) {
+    if let Some(call) = CalcOperations::from_index(op.index) {
+        match call {
+            CalcOperations::Init => {
+                // info!("sum_calc_operations: Init");
+                SumCurrent::update_sum(var, &call, sum, op);
+                // op.index = 6;
+            },
+            CalcOperations::Clear => {
+                // info!("sum_calc_operations: Clear");
+                SumCurrent::zero(sum);
+                var.clear();
+            },
+            CalcOperations::Add => {
+                // info!("sum_calc_operations: Add");
+                op.last_op = 1;
+                SumCurrent::var_to_sum_if_sum_zero(var, sum);
+                var.clear();
+            },
+            CalcOperations::Subtract => {
+                // info!("sum_calc_operations: Subtract");
+                op.last_op = 2;
+                SumCurrent::var_to_sum_if_sum_zero(var, sum);
+                var.clear();
+            },
+            CalcOperations::Multiply => {
+                // info!("sum_calc_operations: Multiply");
+                op.last_op = 3;
+                SumCurrent::var_to_sum_if_sum_zero(var, sum);
+                var.clear();
+            },
+            CalcOperations::Divide => {
+                // info!("sum_calc_operations: Divide");
+                op.last_op = 4;
+                SumCurrent::var_to_sum_if_sum_zero(var, sum);
+                var.clear();
+            },
+            CalcOperations::Sum => {
+                // info!("sum_calc_operations: Sum");
+                SumCurrent::update_sum(var, &call, sum, op);
+            },
+        }
+    }
+}
+
 pub trait FlexInput {
     fn to_f64(self) -> f64;
 }
@@ -82,55 +131,6 @@ impl CalcOperations {
             5 => Some(CalcOperations::Divide),
             6 => Some(CalcOperations::Sum),
             _ => None, // Handle invalid index
-        }
-    }
-}
-
-pub fn sum_calc_operations(
-    op: &mut ResMut<OpIndex>,
-    var: &mut ResMut<SumVariable>,
-    sum: &mut ResMut<SumCurrent>,
-) {
-    if let Some(call) = CalcOperations::from_index(op.index) {
-        match call {
-            CalcOperations::Init => {
-                // info!("sum_calc_operations: Init");
-                SumCurrent::update_sum(var, &call, sum, op);
-                // op.index = 6;
-            },
-            CalcOperations::Clear => {
-                // info!("sum_calc_operations: Clear");
-                SumCurrent::zero(sum);
-                var.clear();
-            },
-            CalcOperations::Add => {
-                // info!("sum_calc_operations: Add");
-                op.last_op = 1;
-                SumCurrent::var_to_sum_if_sum_zero(var, sum);
-                var.clear();
-            },
-            CalcOperations::Subtract => {
-                // info!("sum_calc_operations: Subtract");
-                op.last_op = 2;
-                SumCurrent::var_to_sum_if_sum_zero(var, sum);
-                var.clear();
-            },
-            CalcOperations::Multiply => {
-                // info!("sum_calc_operations: Multiply");
-                op.last_op = 3;
-                SumCurrent::var_to_sum_if_sum_zero(var, sum);
-                var.clear();
-            },
-            CalcOperations::Divide => {
-                // info!("sum_calc_operations: Divide");
-                op.last_op = 4;
-                SumCurrent::var_to_sum_if_sum_zero(var, sum);
-                var.clear();
-            },
-            CalcOperations::Sum => {
-                // info!("sum_calc_operations: Sum");
-                SumCurrent::update_sum(var, &call, sum, op);
-            },
         }
     }
 }
