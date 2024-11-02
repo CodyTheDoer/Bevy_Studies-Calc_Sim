@@ -3,6 +3,8 @@ use bevy::ecs::event::EventReader;
 
 use bevy_mod_raycast::prelude::*;
 
+use std::collections::HashMap;
+
 use crate::cam_world::CameraWorld;
 use crate::{sum_calc_operations};
 use crate::{OpIndex, SumCurrent, SumVariable};
@@ -50,7 +52,7 @@ pub struct ScreenAlbedoState {
 
 // --- Declarations: Enums --- //
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum CalcButtons {
     Sum,
     Clear,
@@ -86,30 +88,34 @@ pub enum MeshColor { // If changed update VARIANT_COUNT
 // --- Declarations: Implementations (impl) --- //
 
 impl CalcButtons {
-    pub fn from_index(index: u32) -> Option<CalcButtons> {
-        match index {
-            45 => Some(CalcButtons::Sum),
-            51 => Some(CalcButtons::Clear),
-            53 => Some(CalcButtons::Decimal),
-            46 => Some(CalcButtons::Add),
-            47 => Some(CalcButtons::Subtract),
-            48 => Some(CalcButtons::Multiply),
-            49 => Some(CalcButtons::Divide),
-            52 => Some(CalcButtons::Num0),
-            55 => Some(CalcButtons::Num1),
-            56 => Some(CalcButtons::Num2),
-            57 => Some(CalcButtons::Num3),
-            59 => Some(CalcButtons::Num4),
-            60 => Some(CalcButtons::Num5),
-            61 => Some(CalcButtons::Num6),
-            63 => Some(CalcButtons::Num7),
-            64 => Some(CalcButtons::Num8),
-            65 => Some(CalcButtons::Num9),
-            42 => Some(CalcButtons::NoneButtonBody),
-            67 => Some(CalcButtons::NoneButtonScreen),
-            68 => Some(CalcButtons::NoneButtonLightPanel),
-            _ => None, // Handle invalid index
-        }
+    pub fn from_index(
+        op_index: &mut ResMut<OpIndex>,
+        index: u32,
+    ) -> Option<CalcButtons> {
+        let mut button_map = HashMap::new();
+    
+        button_map.insert(43 + op_index.entities, CalcButtons::Sum);
+        button_map.insert(49 + op_index.entities, CalcButtons::Clear);
+        button_map.insert(51 + op_index.entities, CalcButtons::Decimal);
+        button_map.insert(44 + op_index.entities, CalcButtons::Add);
+        button_map.insert(45 + op_index.entities, CalcButtons::Subtract);
+        button_map.insert(46 + op_index.entities, CalcButtons::Multiply);
+        button_map.insert(47 + op_index.entities, CalcButtons::Divide);
+        button_map.insert(50 + op_index.entities, CalcButtons::Num0);
+        button_map.insert(53 + op_index.entities, CalcButtons::Num1);
+        button_map.insert(54 + op_index.entities, CalcButtons::Num2);
+        button_map.insert(55 + op_index.entities, CalcButtons::Num3);
+        button_map.insert(57 + op_index.entities, CalcButtons::Num4);
+        button_map.insert(58 + op_index.entities, CalcButtons::Num5);
+        button_map.insert(59 + op_index.entities, CalcButtons::Num6);
+        button_map.insert(61 + op_index.entities, CalcButtons::Num7);
+        button_map.insert(62 + op_index.entities, CalcButtons::Num8);
+        button_map.insert(63 + op_index.entities, CalcButtons::Num9);
+        button_map.insert(40 + op_index.entities, CalcButtons::NoneButtonBody);
+        button_map.insert(65 + op_index.entities, CalcButtons::NoneButtonScreen);
+        button_map.insert(66 + op_index.entities, CalcButtons::NoneButtonLightPanel);
+    
+        button_map.get(&index).cloned()
     }
 
     pub fn button_info(&self) {
@@ -261,6 +267,8 @@ pub fn spawn_gltf(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     ass: Res<AssetServer>,
+    sum: Res<SumCurrent>,
+    mut op_index: ResMut<OpIndex>,
 ) {
     let gltf = ass.load("calculator.glb#Scene0");
 
@@ -285,12 +293,46 @@ pub fn spawn_gltf(
         },
         Ground,
     ));
+    op_index.add_entity();
 
     // Light
     commands.spawn(DirectionalLightBundle {
         transform: Transform::from_translation(Vec3::ONE).looking_at(Vec3::ZERO, Vec3::Y),
         ..default()
     });
+    op_index.add_entity();
+
+    let font = ass.load("fonts/MatrixtypeDisplay-KVELZ.ttf");
+    let text_style = TextStyle {
+        font: font.clone(),
+        font_size: 42.0,
+        ..default()
+    };
+    let smaller_text_style = TextStyle {
+        font: font.clone(),
+        font_size: 25.0,
+        ..default()
+    };
+
+    commands.spawn((
+        Text2dBundle{
+            text: Text {
+                sections: vec![TextSection::new(
+                    "Sum: ".to_owned(),// + &sum.sum.to_string(),
+                    smaller_text_style.clone(),
+                )],
+                ..default()
+            },
+            transform: Transform {
+                translation: Vec3::new(0.0, 3.0, 0.0),
+                scale: Vec3::splat(4.0),
+                ..default()
+            },
+            ..default()
+        },
+        // SumText,
+    ));
+    op_index.add_entity();
 }
 
 pub fn fire_ray(
@@ -301,7 +343,7 @@ pub fn fire_ray(
     interactable_query: Query<Entity, With<Interactable>>,
     mut sum: ResMut<SumCurrent>,
     mut var: ResMut<SumVariable>,
-    mut op: ResMut<OpIndex>,
+    mut op_index: ResMut<OpIndex>,
     mut screen_albedo: ResMut<ScreenAlbedoState>,
 ) {    
     let (camera, camera_transform) = match camera_query.get_single() {
@@ -333,14 +375,14 @@ pub fn fire_ray(
             let button_index = entity.index();
             info!("Entity Check: {:?}", &entity);
 
-            if let Some(button) = CalcButtons::from_index(button_index) {
+            if let Some(button) = CalcButtons::from_index(&mut op_index, button_index) {
                 // button.button_info(); // Call the method to log which button was clicked
                 match button {
                     CalcButtons::Clear => {
                         // Assuming sum has a method to reset to zero
                         // sum.zero();
-                        op.index = 1;
-                        sum_calc_operations(&mut op, &mut var, &mut sum);
+                        op_index.index = 1;
+                        sum_calc_operations(&mut op_index, &mut var, &mut sum);
                         // info!("Triggered button press animation for: C");
                         click_animation(&mut commands, *entity);
                     },
@@ -350,38 +392,38 @@ pub fn fire_ray(
                         click_animation(&mut commands, *entity);
                     },
                     CalcButtons::Add => {
-                        // Assuming there is an addition operation on `sum` involving `var`
+                        // Assuming there is an addition op_indexeration on `sum` involving `var`
                         // sum.add(var);
-                        op.index = 2;
-                        sum_calc_operations(&mut op, &mut var, &mut sum);
+                        op_index.index = 2;
+                        sum_calc_operations(&mut op_index, &mut var, &mut sum);
                         // info!("Triggered button press animation for: +");
                         click_animation(&mut commands, *entity);
                     },
                     CalcButtons::Subtract => {
                         // sum.subtract(var);
-                        op.index = 3;
-                        sum_calc_operations(&mut op, &mut var, &mut sum);
+                        op_index.index = 3;
+                        sum_calc_operations(&mut op_index, &mut var, &mut sum);
                         // info!("Triggered button press animation for: -");
                         click_animation(&mut commands, *entity);
                     },
                     CalcButtons::Multiply => {
                         // sum.multiply(var);
-                        op.index = 4;
-                        sum_calc_operations(&mut op, &mut var, &mut sum);
+                        op_index.index = 4;
+                        sum_calc_operations(&mut op_index, &mut var, &mut sum);
                         // info!("Triggered button press animation for: *");
                         click_animation(&mut commands, *entity);
                     },
                     CalcButtons::Divide => {
                         // sum.divide(var);
-                        op.index = 5;
-                        sum_calc_operations(&mut op, &mut var, &mut sum);
+                        op_index.index = 5;
+                        sum_calc_operations(&mut op_index, &mut var, &mut sum);
                         // info!("Triggered button press animation for: /");
                         click_animation(&mut commands, *entity);
                     },
                     CalcButtons::Sum => {
                         // var.review(); // Reviews the Vec of numbers stored in the Variable Vec and the period index.
-                        op.index = 6;
-                        sum_calc_operations(&mut op, &mut var, &mut sum);
+                        op_index.index = 6;
+                        sum_calc_operations(&mut op_index, &mut var, &mut sum);
                         // info!("Triggered button press animation for: =");
                         click_animation(&mut commands, *entity);
                     },

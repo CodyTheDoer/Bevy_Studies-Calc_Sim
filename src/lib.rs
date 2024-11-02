@@ -37,18 +37,24 @@ pub struct OpIndex {
     pub index: u32,
     pub last_op: u32,
     pub screen_color: u32,
+    pub entities: u32,
 }
 
 impl OpIndex {
     pub fn new(    
-        // mut op: ResMut<OpIndex>,
     ) -> Self {
-        let (index, last_op, screen_color): (u32, u32, u32) = (0, 0, 0);
+        let (index, last_op, screen_color, entities): (u32, u32, u32, u32) = (0, 0, 0, 0);
         OpIndex {
             index,
             last_op,
             screen_color,
+            entities,
         }
+    }
+
+    pub fn add_entity(&mut self) {
+        self.entities += 1;
+        info!("Entity Added: New total: {:?}", self.entities);
     }
 }
 
