@@ -1,5 +1,14 @@
-use bevy::prelude::*;
-use bevy::input::common_conditions::*;
+use bevy::{prelude::*,
+    asset::{AssetEvent, Assets, Handle},
+    input::common_conditions::*,
+    render::{
+        camera::RenderTarget,
+        render_resource::{
+            Extent3d, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages,
+        },
+    },
+    pbr::{CascadeShadowConfigBuilder, DirectionalLightShadowMap},
+};
 
 use bevy_mod_raycast::prelude::*;
 
@@ -11,7 +20,7 @@ use calc_sim::cam_ui::CameraUi;
 use calc_sim::cam_world::{draw_cursor, pan_orbit_camera, spawn_3d_camera};
 use calc_sim::cam_world::{CameraWorld, PanOrbitState};
 
-use calc_sim::game_env::{button_animation_system, fire_ray, handle_asset_events, screen_albedo, spawn_gltf, update_screen_albedo};
+use calc_sim::game_env::{button_animation_system, fire_ray, handle_asset_events, screen_albedo, setup_calc_interface_projection, spawn_gltf, update_screen_albedo};
 use calc_sim::game_env::{CalcButtons, Countdown, CurrentMeshColor, Interactable, Loaded, ScreenAlbedoState};
 
 fn main() {
@@ -29,6 +38,7 @@ fn main() {
                 setup_ui,
                 spawn_gltf,
                 spawn_3d_camera,
+                setup_calc_interface_projection,
             )
         )
         .add_systems(
@@ -47,19 +57,3 @@ fn main() {
         )
         .run();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

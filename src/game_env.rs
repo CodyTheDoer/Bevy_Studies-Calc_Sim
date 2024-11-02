@@ -1,5 +1,11 @@
 use bevy::prelude::*;
 use bevy::ecs::event::EventReader;
+use bevy::render::{
+    camera::RenderTarget,
+    render_resource::{
+        Extent3d, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages,
+    },
+};
 
 use bevy_mod_raycast::prelude::*;
 
@@ -78,12 +84,115 @@ pub enum CalcButtons {
 
 #[derive(Debug, Resource)]
 pub enum MeshColor { // If changed update VARIANT_COUNT 
-    Black,
+    Gray,
     White,
     Red,
     Green,
     Blue,
 }
+
+// --- Implementation --- //
+
+
+#[derive(Resource)]
+pub struct CalcUIMaterialHandle {
+    material_handle: Handle<StandardMaterial>,
+    image_handle: Handle<Image>,  // Add this to store the image handle
+}
+
+pub fn setup_calc_interface_projection(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut images: ResMut<Assets<Image>>,
+) {
+    let size = Extent3d {
+        width: 1024,
+        height: 512,
+        ..default()
+    };
+
+    // This is the texture that will be rendered to.
+    let mut image = Image {
+        texture_descriptor: TextureDescriptor {
+            label: None,
+            size,
+            dimension: TextureDimension::D2,
+            format: TextureFormat::Bgra8UnormSrgb,
+            mip_level_count: 1,
+            sample_count: 1,
+            usage: TextureUsages::TEXTURE_BINDING
+                | TextureUsages::COPY_DST
+                | TextureUsages::RENDER_ATTACHMENT,
+            view_formats: &[],
+        },
+        ..default()
+    };
+
+    // fill image.data with zeroes
+    image.resize(size);
+
+    let image_handle = images.add(image);
+
+    // Light
+    commands.spawn(DirectionalLightBundle::default());
+
+    let texture_camera = commands
+        .spawn(Camera2dBundle {
+            camera: Camera {
+                // render before the "main pass" camera
+                order: -1,
+                target: RenderTarget::Image(image_handle.clone()),
+                ..default()
+            },
+            ..default()
+        })
+        .id();
+
+    commands
+        .spawn((
+            NodeBundle {
+                style: Style {
+                    // Cover the whole image
+                    width: Val::Percent(100.),
+                    height: Val::Percent(100.),
+                    flex_direction: FlexDirection::Column,
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    ..default()
+                },
+                background_color: BackgroundColor(Color::srgb(1.0, 1.0, 1.0)),
+                ..default()
+            },
+            TargetCamera(texture_camera),
+        ))
+        .with_children(|parent| {
+            parent.spawn(TextBundle::from_section(
+                "This is a calculator...",
+                TextStyle {
+                    font_size: 80.0,
+                    color: Color::BLACK,
+                    ..default()
+                },
+            ));
+        });
+
+    // This material has the texture that has been rendered.
+    let calc_ui_handle = materials.add(StandardMaterial {
+        base_color_texture: Some(image_handle.clone()),
+        reflectance: 0.02,
+        unlit: false,
+
+        ..default()
+    });
+
+    // Store the handle in a resource for future use
+    commands.insert_resource(CalcUIMaterialHandle {
+        material_handle: calc_ui_handle,
+        image_handle,
+    });
+}
+
 
 // --- Declarations: Implementations (impl) --- //
 
@@ -178,7 +287,7 @@ impl Default for ScreenAlbedoState {
 impl CurrentMeshColor {
     fn from_index(index: u32) -> Option<MeshColor> {
         match index {
-            0 => Some(MeshColor::Black),
+            0 => Some(MeshColor::Gray),
             1 => Some(MeshColor::White),
             2 => Some(MeshColor::Red),
             3 => Some(MeshColor::Green),
@@ -192,8 +301,8 @@ impl CurrentMeshColor {
     ) -> Color {
         if let Some(call) = CurrentMeshColor::from_index(op.screen_color) {
             match call {
-                MeshColor::Black => {
-                    Color::srgb(0.0, 0.0, 0.0)
+                MeshColor::Gray => {
+                    Color::srgb(0.5, 0.5, 0.5)
                 },
                 MeshColor::White => {
                     Color::srgb(1.0, 1.0, 1.0)
@@ -219,6 +328,7 @@ impl CurrentMeshColor {
         mut materials: ResMut<Assets<StandardMaterial>>,
         material_query: Query<&Handle<StandardMaterial>>,
         op_index: &mut ResMut<OpIndex>,
+        calc_ui_material: &mut ResMut<CalcUIMaterialHandle>,
     ) {
         for (entity, _) in color_change_cube_query.iter() {
             if let Ok(children) = children_query.get(entity) {
@@ -227,7 +337,8 @@ impl CurrentMeshColor {
                     &material_query,
                     children,
                     &children_query,
-                    op_index,         
+                    op_index,      
+                    calc_ui_material,   
                 );
             }
         }
@@ -239,16 +350,22 @@ impl CurrentMeshColor {
         children: &Children,
         children_query: &Query<&Children>,
         op_index: &mut ResMut<OpIndex>,
+        calc_ui_material: &mut ResMut<CalcUIMaterialHandle>,
     ) {
         for &child in children.iter() {
-            // dynamically target the Screen Entity and apply Albedo changes directly.
-            if child.index() == 62 + op_index.entities { 
+            if child.index() == 62 + op_index.entities {
                 if let Ok(material_handle) = material_query.get(child) {
                     if let Some(material) = materials.get_mut(material_handle) {
+                        let new_color = CurrentMeshColor::update_current_mesh_color(op_index);
                         material.base_color = CurrentMeshColor::update_current_mesh_color(op_index);
-                    }
-                }
+                        material.base_color_texture = Some(calc_ui_material.image_handle.clone());
+                    } else {
+                        warn!("Material not found or invalid for handle: {:?}", material_handle);                    }
+                } else {
+                    warn!("Could not get material handle for child: {:?}", child);                }
+            } else {
             }
+
             // Recursively check grandchildren
             if let Ok(grandchildren) = children_query.get(child) {
                 Self::process_entity_children(
@@ -257,6 +374,7 @@ impl CurrentMeshColor {
                     grandchildren,
                     children_query,
                     op_index,
+                    calc_ui_material,
                 );
             }
         }
@@ -316,26 +434,6 @@ pub fn spawn_gltf(
         font_size: 25.0,
         ..default()
     };
-
-    commands.spawn((
-        Text2dBundle{
-            text: Text {
-                sections: vec![TextSection::new(
-                    "Sum: Placeholder",// .to_owned(),// + &sum.sum.to_string(),
-                    smaller_text_style.clone(),
-                )],
-                ..default()
-            },
-            transform: Transform {
-                translation: Vec3::new(0.0, 3.0, 0.0),
-                scale: Vec3::splat(4.0),
-                ..default()
-            },
-            ..default()
-        },
-        // SumText,
-    ));
-    op_index.add_entity();
 }
 
 pub fn fire_ray(
@@ -549,7 +647,18 @@ pub fn screen_albedo(
     material_query: Query<&Handle<StandardMaterial>>,
     color_change_query: Query<(Entity, &Handle<Scene>), (With<Interactable>, With<Loaded>)>,
     mut op_index: ResMut<OpIndex>,
+    mut calc_ui_material: ResMut<CalcUIMaterialHandle>,
 ) {
+    // Update the albedo before we cycle color
+    CurrentMeshColor::update_gltf_material_color(
+        children_query,
+        color_change_query,
+        materials,
+        material_query,
+        &mut op_index,
+        &mut calc_ui_material,
+    );
+    
     // Only tick the timer if the countdown is active
     if countdown.is_active {
         // Tick the timer
@@ -557,14 +666,6 @@ pub fn screen_albedo(
 
         // Check if the timer has finished for the current iteration
         if countdown.timer.finished() {
-            // Update the albedo before we cycle color
-            CurrentMeshColor::update_gltf_material_color(
-                children_query,
-                color_change_query,
-                materials,
-                material_query,
-                &mut op_index,
-            );
 
             countdown.current_count += 1;
             let color_count = MeshColor::VARIANT_COUNT;
