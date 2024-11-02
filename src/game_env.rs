@@ -8,6 +8,7 @@ use crate::{sum_calc_operations};
 use crate::{OpIndex, SumCurrent, SumVariable};
 
 // --- Declarations: Structs --- //
+
 #[derive(Component)] 
 pub struct ButtonAnimation {
     progress: f32,
@@ -16,9 +17,6 @@ pub struct ButtonAnimation {
     target_scale: Vec3,
     target_entity: Entity,
 }
-
-#[derive(Component)]
-pub struct ColorChange;
 
 #[derive(Resource)]
 pub struct Countdown {
@@ -209,7 +207,7 @@ impl CurrentMeshColor {
 
     fn update_gltf_material_color(
         children_query: Query<&Children>,
-        color_change_cube_query: Query<(Entity, &Handle<Scene>), (With<ColorChange>, With<Loaded>)>,
+        color_change_cube_query: Query<(Entity, &Handle<Scene>), (With<Interactable>, With<Loaded>)>,
         mut materials: ResMut<Assets<StandardMaterial>>,
         material_query: Query<&Handle<StandardMaterial>>,
         op_index: &mut ResMut<OpIndex>,
@@ -257,6 +255,43 @@ impl CurrentMeshColor {
 }
 
 // --- Declarations: Functions --- //
+
+pub fn spawn_gltf(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    ass: Res<AssetServer>,
+) {
+    let gltf = ass.load("calculator.glb#Scene0");
+
+    // Scene
+    commands.spawn(SceneBundle {
+        scene: gltf,
+        ..Default::default()
+    })
+    .insert(Interactable); // Custom marker to identify this as interactable
+
+    // Circular plane
+    commands.spawn((
+        PbrBundle {
+            mesh: meshes.add(Circle::new(2000.)).into(),
+            material: materials.add(Color::srgb(0.1, 0.0, 0.1)),
+            transform: Transform {
+                translation: Vec3::new(0.0, -0.65, 0.0),
+                rotation: Quat::from_rotation_x(-2.0 * (std::f32::consts::PI / 4.0)), //4 = 45 degrees
+                ..default()
+            },
+            ..default()
+        },
+        Ground,
+    ));
+
+    // Light
+    commands.spawn(DirectionalLightBundle {
+        transform: Transform::from_translation(Vec3::ONE).looking_at(Vec3::ZERO, Vec3::Y),
+        ..default()
+    });
+}
 
 pub fn fire_ray(
     mut commands: Commands,
@@ -433,7 +468,7 @@ pub fn fire_ray(
 pub fn handle_asset_events(
     mut commands: Commands,
     mut events: EventReader<AssetEvent<Scene>>,
-    color_change_query: Query<(Entity, &Handle<Scene>), With<ColorChange>>,
+    color_change_query: Query<(Entity, &Handle<Scene>), With<Interactable>>,
 ) {
     for event in events.read() {
         if let AssetEvent::Added { id } = event {
@@ -467,7 +502,7 @@ pub fn screen_albedo(
     mut materials: ResMut<Assets<StandardMaterial>>,
     children_query: Query<&Children>,
     material_query: Query<&Handle<StandardMaterial>>,
-    color_change_cube_query: Query<(Entity, &Handle<Scene>), (With<ColorChange>, With<Loaded>)>,
+    color_change_cube_query: Query<(Entity, &Handle<Scene>), (With<Interactable>, With<Loaded>)>,
     mut op_index: ResMut<OpIndex>,
 ) {
     // Only tick the timer if the countdown is active
@@ -502,44 +537,6 @@ pub fn screen_albedo(
             }
         } 
     }
-}
-
-pub fn spawn_gltf(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-    ass: Res<AssetServer>,
-) {
-    let gltf = ass.load("calculator.glb#Scene0");
-
-    // Scene
-    commands.spawn(SceneBundle {
-        scene: gltf,
-        ..Default::default()
-    })
-    .insert(ColorChange)
-    .insert(Interactable); // Custom marker to identify this as interactable
-
-    // Circular plane
-    commands.spawn((
-        PbrBundle {
-            mesh: meshes.add(Circle::new(2000.)).into(),
-            material: materials.add(Color::srgb(0.1, 0.0, 0.1)),
-            transform: Transform {
-                translation: Vec3::new(0.0, -0.65, 0.0),
-                rotation: Quat::from_rotation_x(-2.0 * (std::f32::consts::PI / 4.0)), //4 = 45 degrees
-                ..default()
-            },
-            ..default()
-        },
-        Ground,
-    ));
-
-    // Light
-    commands.spawn(DirectionalLightBundle {
-        transform: Transform::from_translation(Vec3::ONE).looking_at(Vec3::ZERO, Vec3::Y),
-        ..default()
-    });
 }
 
 pub fn button_animation_system(
