@@ -2,13 +2,13 @@ use bevy::prelude::*;
 
 use crate::OpIndex;
 use crate::cam_calc_screen::CalcUIMaterialHandle;
-use crate::game_env::{Countdown, Interactable, Loaded};
+use crate::game_env::{CountdownCycle, Interactable, Loaded};
 
 use std::collections::HashMap;
 
 /// This system starts the countdown when the mouse is clicked.
-pub fn update_screen_albedo(
-    mut countdown: ResMut<Countdown>,
+pub fn cycle_screen_albedo(
+    mut countdown: ResMut<CountdownCycle>,
     mut screen_albedo_state: ResMut<ScreenAlbedoState>,
  ) {
     if !countdown.is_active {
@@ -23,7 +23,7 @@ pub fn update_screen_albedo(
 /// handling its state.
 pub fn screen_albedo(
     time: Res<Time>, 
-    mut countdown: ResMut<Countdown>,
+    mut countdown: ResMut<CountdownCycle>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     children_query: Query<&Children>,
     material_query: Query<&Handle<StandardMaterial>>,
@@ -78,6 +78,7 @@ impl CurrentMeshColor {
             2 => Some(MeshColor::Red),
             3 => Some(MeshColor::Green),
             4 => Some(MeshColor::Blue),
+            5 => Some(MeshColor::Black),
             _ => None, // Handle invalid index
         }
     }
@@ -101,6 +102,9 @@ impl CurrentMeshColor {
                 },
                 MeshColor::Blue => {
                     Color::srgb(0.0, 0.0, 1.0)
+                },
+                MeshColor::Black => {
+                    Color::srgb(0.0, 0.0, 0.0)
                 },
             }
         } else {
@@ -174,6 +178,7 @@ pub enum MeshColor { // If changed update VARIANT_COUNT
     Red,
     Green,
     Blue,
+    Black,
 }
 
 impl MeshColor {
@@ -192,8 +197,12 @@ impl ScreenAlbedoState {
         }
     }
 
-    pub fn should_run(&self) -> bool {
+    pub fn should_run_cycle(&self) -> bool {
         self.state == 1
+    }
+
+    pub fn should_run_dim(&self) -> bool {
+        self.state == 2
     }
 }
 

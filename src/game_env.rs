@@ -21,6 +21,7 @@ pub fn fire_ray(
     mut var: ResMut<SumVariable>,
     mut op_index: ResMut<OpIndex>,
     mut screen_albedo: ResMut<ScreenAlbedoState>,
+    asset_server: Res<AssetServer>,
 ) {    
     let (camera, camera_transform) = match camera_query.get_single() {
         Ok(result) => result,
@@ -40,128 +41,87 @@ pub fn fire_ray(
     };
 
     let hits = raycast.cast_ray(ray, &RaycastSettings::default());
-    // info!("{:?}", hits);
 
     // Loop through the raycast hits and detect if we hit an interactable entity
     for (entity, intersection) in hits {
         if Some(interactable_query.get(*entity)).is_some() {
-            // This entity has an Interactable component
-            // info!("Clicked on entity: {:?}", entity.index());
-
             let button_index = entity.index();
-            info!("Entity Check: {:?}", &entity);
-
+            // info!("Entity Check: {:?}", &entity);
             if let Some(button) = CalcButtons::from_index(&mut op_index, button_index) {
-                // button.button_info(); // Call the method to log which button was clicked
                 match button {
                     CalcButtons::Clear => {
-                        // Assuming sum has a method to reset to zero
-                        // sum.zero();
                         op_index.index = 1;
                         sum_calc_operations(&mut op_index, &mut var, &mut sum);
-                        // info!("Triggered button press animation for: C");
-                        click_animation(&mut commands, *entity);
+                        click_animation(&asset_server, &mut commands, *entity);
                     },
                     CalcButtons::Decimal => {
                         var.decimal();
-                        // info!("Triggered button press animation for: .");
-                        click_animation(&mut commands, *entity);
+                        click_animation(&asset_server, &mut commands, *entity);
                     },
                     CalcButtons::Add => {
-                        // Assuming there is an addition op_indexeration on `sum` involving `var`
-                        // sum.add(var);
                         op_index.index = 2;
                         sum_calc_operations(&mut op_index, &mut var, &mut sum);
-                        // info!("Triggered button press animation for: +");
-                        click_animation(&mut commands, *entity);
+                        click_animation(&asset_server, &mut commands, *entity);
                     },
                     CalcButtons::Subtract => {
-                        // sum.subtract(var);
                         op_index.index = 3;
                         sum_calc_operations(&mut op_index, &mut var, &mut sum);
-                        // info!("Triggered button press animation for: -");
-                        click_animation(&mut commands, *entity);
+                        click_animation(&asset_server, &mut commands, *entity);
                     },
                     CalcButtons::Multiply => {
-                        // sum.multiply(var);
                         op_index.index = 4;
                         sum_calc_operations(&mut op_index, &mut var, &mut sum);
-                        // info!("Triggered button press animation for: *");
-                        click_animation(&mut commands, *entity);
+                        click_animation(&asset_server, &mut commands, *entity);
                     },
                     CalcButtons::Divide => {
-                        // sum.divide(var);
                         op_index.index = 5;
                         sum_calc_operations(&mut op_index, &mut var, &mut sum);
-                        // info!("Triggered button press animation for: /");
-                        click_animation(&mut commands, *entity);
+                        click_animation(&asset_server, &mut commands, *entity);
                     },
                     CalcButtons::Sum => {
-                        // var.review(); // Reviews the Vec of numbers stored in the Variable Vec and the period index.
                         op_index.index = 6;
                         sum_calc_operations(&mut op_index, &mut var, &mut sum);
-                        // info!("Triggered button press animation for: =");
-                        click_animation(&mut commands, *entity);
+                        click_animation(&asset_server, &mut commands, *entity);
                     },
                     CalcButtons::Num0 => {
                         var.push(0);
-                        // info!("Num0: {:?}", var.var);
-                        // info!("Triggered button press animation for: 0");
-                        click_animation(&mut commands, *entity);
+                        click_animation(&asset_server, &mut commands, *entity);
                     },
                     CalcButtons::Num1 => {
                         var.push(1);
-                        // info!("Num1: {:?}", var.var);
-                        // info!("Triggered button press animation for: 1");
-                        click_animation(&mut commands, *entity);
+                        click_animation(&asset_server, &mut commands, *entity);
                     },
                     CalcButtons::Num2 => {
                         var.push(2);
-                        // info!("Num2: {:?}", var.var);
-                        // info!("Triggered button press animation for: 2");
-                        click_animation(&mut commands, *entity);
+                        click_animation(&asset_server, &mut commands, *entity);
                     },
                     CalcButtons::Num3 => {
                         var.push(3);
-                        // info!("Num3: {:?}", var.var);
-                        // info!("Triggered button press animation for: 3");
-                        click_animation(&mut commands, *entity);
+                        click_animation(&asset_server, &mut commands, *entity);
                     },
                     CalcButtons::Num4 => {
                         var.push(4);
-                        // info!("Num4: {:?}", var.var);
-                        // info!("Triggered button press animation for: 4");
-                        click_animation(&mut commands, *entity);
+                        click_animation(&asset_server, &mut commands, *entity);
                     },
                     CalcButtons::Num5 => {
                         var.push(5);
-                        // info!("Num5: {:?}", var.var);
-                        // info!("Triggered button press animation for: 5");
-                        click_animation(&mut commands, *entity);
+                        click_animation(&asset_server, &mut commands, *entity);
                     },
                     CalcButtons::Num6 => {
                         var.push(6);
-                        // info!("Num6: {:?}", var.var);
-                        // info!("Triggered button press animation for: 6");
-                        click_animation(&mut commands, *entity);
+                        click_animation(&asset_server, &mut commands, *entity);
                     },
                     CalcButtons::Num7 => {
                         var.push(7);
-                        // info!("Num7: {:?}", var.var);
-                        // info!("Triggered button press animation for: 7");
-                        click_animation(&mut commands, *entity);
+                        click_animation(&asset_server, &mut commands, *entity);
                     },
                     CalcButtons::Num8 => {
                         var.push(8);
-                        // info!("Num8: {:?}", var.var);
-                        // info!("Triggered button press animation for: 8");
-                        click_animation(&mut commands, *entity);
+                        click_animation(&asset_server, &mut commands, *entity);
                     },
                     CalcButtons::Num9 => {
                         var.push(9);
-                        // info!("Num9: {:?}", var.var);
-                        // info!("Triggered button press animation for: 9");
-                        click_animation(&mut commands, *entity);
+                        click_animation(&asset_server, &mut commands, *entity);
                     },
                     CalcButtons::NoneButtonBody => {
                         info!("Triggered calc shake animation for NoneButtonBody");
@@ -271,6 +231,7 @@ pub fn button_animation_system(
 }
 
 pub fn click_animation(
+    asset_server: &Res<AssetServer>,
     commands: &mut Commands,
     entity: Entity,
 ) {
@@ -288,6 +249,10 @@ pub fn click_animation(
         target_scale: Vec3::ONE,
         target_entity: entity, // Use the current entity ID
     });
+    commands.spawn(AudioBundle {
+        source: asset_server.load("audio/click.mp3"),
+        settings: PlaybackSettings::ONCE,
+    });
 }
 
 #[derive(Component)] 
@@ -300,14 +265,14 @@ pub struct ButtonAnimation {
 }
 
 #[derive(Resource)]
-pub struct Countdown {
+pub struct CountdownCycle {
     pub timer: Timer,           // Set single timer for countdown
     pub loop_count: u32,        // Number of loops, currently tied to the varient_count to loop through all dynamically
     pub current_count: u32,     // Tracks where in the loop you are
     pub is_active: bool,        // Tracks if the loop is active
 }
 
-impl Countdown {
+impl CountdownCycle {
     pub fn new() -> Self {
         Self {
             timer: Timer::from_seconds(0.125, TimerMode::Once), // Set single timer for countdown
@@ -318,7 +283,7 @@ impl Countdown {
     }
 }
 
-impl Default for Countdown {
+impl Default for CountdownCycle {
     fn default() -> Self {
         Self::new()
     }
