@@ -11,13 +11,13 @@ use calc_sim::{FlexInput, OpIndex, SumCurrent, SumVariable};
 use calc_sim::calculator::{screen_albedo, update_screen_albedo};
 use calc_sim::calculator::{CalcButtons, CurrentMeshColor, MeshColor, ScreenAlbedoState};
 
-use calc_sim::cam_ui::{setup_ui, update_sum_text, update_var_text};
+use calc_sim::cam_ui::setup_ui;
 use calc_sim::cam_ui::CameraUi;
 
 use calc_sim::cam_world::{draw_cursor, pan_orbit_camera, spawn_3d_camera};
 use calc_sim::cam_world::{CameraWorld, PanOrbitState};
 
-use calc_sim::cam_calc_screen::setup_calc_interface_projection;
+use calc_sim::cam_calc_screen::{setup_calc_interface_projection, update_sum_text, update_var_text};
 
 use calc_sim::game_env::{button_animation_system, fire_ray, handle_asset_events, spawn_gltf};
 use calc_sim::game_env::{Countdown, Interactable, Loaded};

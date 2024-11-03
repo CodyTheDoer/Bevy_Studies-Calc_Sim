@@ -6,11 +6,95 @@ use bevy::render::{
     },
 };
 
+use crate::{SumCurrent, SumVariable};
+
+#[derive(Component)]
+pub struct SumText;
+
+pub fn update_sum_text(
+    sum: Res<SumCurrent>,
+    mut query: Query<&mut Text, With<SumText>>,
+) {
+    if sum.is_changed() {
+        // Only run this if the `sum` resource has been changed.
+        for mut text in &mut query {
+            text.sections[0].value = "Sum: ".to_owned() + &sum.sum.to_string();
+
+            // let full_sum = "Sum: ".to_owned() + &sum.sum.to_string();
+            // let mut display_limiter = full_sum
+            // while display_limiter.len() > 8 {
+            //     display_limiter.pop();
+            // }
+            // text.sections[0].value = display_limiter;
+
+        }
+    }
+}
+
+#[derive(Component)]
+pub struct VarText;
+
+pub fn update_var_text(
+    var: Res<SumVariable>,
+    mut query: Query<&mut Text, With<VarText>>,
+) {
+    let mut res = if var.decimal_index > 0 {
+        let mut num: String = "".to_string();
+        let mut multiplier: String = ".".to_string();
+        
+        for i in 0..var.var.len() {
+            num += &var.var[i].to_string();
+        }
+        
+        for _ in 0..var.var.len() - var.decimal_index as usize {
+            multiplier += "0";
+        }
+        
+        let popped_multiplier = {
+            let mut chars = multiplier.chars();
+            chars.next_back();
+            chars.as_str()
+        };
+
+        multiplier = popped_multiplier.to_string();
+        multiplier += "1";
+
+        let res_num: f64 = num.to_string().parse::<f64>().unwrap();
+        let res_mul: f64 = multiplier.to_string().parse::<f64>().unwrap();
+        let res_sum = res_num * res_mul;
+
+        res_sum
+    } else {
+        let mut num: String = "".to_string();
+        
+        for i in 0..var.var.len() {
+            num += &var.var[i].to_string();
+        }
+        
+        let res_sum: f64 = if var.var.len() == 0 {
+            0.0
+        } else {
+            num.to_string().parse::<f64>().unwrap()
+        };
+
+        res_sum
+    };
+
+    if var.is_changed() {
+        // Only run this if the recompiled `Var` resource has been changed.
+        for mut text in &mut query {
+            text.sections[0].value = "Input: ".to_owned() + &res.to_string();
+        }
+    }
+}
+
 pub fn setup_calc_interface_projection(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut images: ResMut<Assets<Image>>,
+    asset_server: Res<AssetServer>,
+    sum: Res<SumCurrent>,
 ) {
     let size = Extent3d {
         width: 1024,
@@ -55,6 +139,8 @@ pub fn setup_calc_interface_projection(
         })
         .id();
 
+    let font = asset_server.load("fonts/MatrixtypeDisplay-KVELZ.ttf"); 
+    
     commands
         .spawn((
             NodeBundle {
@@ -74,13 +160,27 @@ pub fn setup_calc_interface_projection(
         ))
         .with_children(|parent| {
             parent.spawn(TextBundle::from_section(
-                "This is a calculator...",
+                "Input: 0",
                 TextStyle {
-                    font_size: 80.0,
-                    color: Color::BLACK,
+                    font: font.clone(),
+                    font_size: 110.0,
+                    color: Color::srgb(0.0, 0.0, 0.0),
                     ..default()
                 },
-            ));
+            ))
+            .insert(VarText); // Insert a marker component to easily query this later
+        })
+        .with_children(|parent| {
+            parent.spawn(TextBundle::from_section(
+                "Sum: ".to_owned() + &sum.sum.to_string(),
+                TextStyle {
+                    font: font.clone(),
+                    font_size: 110.0,
+                    color: Color::srgb(0.0, 0.0, 0.0),
+                    ..default()
+                },
+            ))
+            .insert(SumText); // Insert a marker component to easily query this later
         });
 
     // This material has the texture that has been rendered.
