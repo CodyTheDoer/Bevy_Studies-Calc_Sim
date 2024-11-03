@@ -14,41 +14,33 @@ pub fn sum_calc_operations(
     if let Some(call) = CalcOperations::from_index(op.index) {
         match call {
             CalcOperations::Init => {
-                // info!("sum_calc_operations: Init");
                 SumCurrent::update_sum(var, &call, sum, op);
-                // op.index = 6;
             },
             CalcOperations::Clear => {
-                // info!("sum_calc_operations: Clear");
                 SumCurrent::zero(sum);
                 var.clear();
             },
             CalcOperations::Add => {
-                // info!("sum_calc_operations: Add");
                 op.last_op = 1;
                 SumCurrent::var_to_sum_if_sum_zero(var, sum);
                 var.clear();
             },
             CalcOperations::Subtract => {
-                // info!("sum_calc_operations: Subtract");
                 op.last_op = 2;
                 SumCurrent::var_to_sum_if_sum_zero(var, sum);
                 var.clear();
             },
             CalcOperations::Multiply => {
-                // info!("sum_calc_operations: Multiply");
                 op.last_op = 3;
                 SumCurrent::var_to_sum_if_sum_zero(var, sum);
                 var.clear();
             },
             CalcOperations::Divide => {
-                // info!("sum_calc_operations: Divide");
                 op.last_op = 4;
                 SumCurrent::var_to_sum_if_sum_zero(var, sum);
                 var.clear();
             },
             CalcOperations::Sum => {
-                // info!("sum_calc_operations: Sum");
                 SumCurrent::update_sum(var, &call, sum, op);
             },
         }
@@ -174,8 +166,6 @@ impl SumVariable {
         while self.var.len() > 0 {
             self.var.pop();
         }
-        // info!("clear: index: {:?}", self.decimal_index);
-        // info!("clear: vec: {:?}", self.var);
     }
 }
 
@@ -206,18 +196,14 @@ impl SumCurrent {
                 multiplier += "0";
             }
             multiplier += "1";
-            // info!("num {:?}", num);
-            // info!("multiplier {:?}", multiplier);
 
             let res_num: f64 = num.to_string().parse::<f64>().unwrap();
             let res_mul: f64 = multiplier.to_string().parse::<f64>().unwrap();
             let res = res_num * res_mul;
 
             sum.sum = res;
-            // info!("update_sum: 1 Sum: {:?}", sum.sum);
 
         } else if var.decimal_index == 0 && sum.sum == 0.0 {
-            // info!("update_sum: if 2");
             let mut num: String = "".to_string();
             for i in 0..var.var.len() {
                 num += &var.var[i].to_string();
@@ -238,9 +224,7 @@ impl SumCurrent {
         sum: &mut ResMut<SumCurrent>,
         op: &mut ResMut<OpIndex>,
     ) { // rebuild vec from SumVariable into f64 and pass it into the sum with maths if applicable
-        // info!("update_sum: decimal_index: {:?}", var.decimal_index);
-
-        if var.decimal_index > 0 && sum.sum == 0.0 {
+            if var.decimal_index > 0 && sum.sum == 0.0 {
             let mut num: String = "".to_string();
             let mut multiplier: String = ".".to_string();
             for i in 0..var.var.len() {
@@ -250,18 +234,14 @@ impl SumCurrent {
                 multiplier += "0";
             }
             multiplier += "1";
-            // info!("num {:?}", num);
-            // info!("multiplier {:?}", multiplier);
 
             let res_num: f64 = num.to_string().parse::<f64>().unwrap();
             let res_mul: f64 = multiplier.to_string().parse::<f64>().unwrap();
             let res = res_num * res_mul;
 
             sum.sum = res;
-            // info!("update_sum: 1 Sum: {:?}", sum.sum);
 
         } else if var.decimal_index == 0 && sum.sum == 0.0 {
-            // info!("update_sum: if 2");
             let mut num: String = "".to_string();
             for i in 0..var.var.len() {
                 num += &var.var[i].to_string();
@@ -273,12 +253,8 @@ impl SumCurrent {
             };
 
             sum.sum = new_sum;
-            
-            // info!("update_sum: var.vec: {:?}", var.var);
-            // info!("update_sum: 2 Sum: {:?}", sum.sum);
 
         } else if var.decimal_index > 0 && sum.sum != 0.0 {
-            // info!("update_sum: if 3");
             let mut num: String = "".to_string();
             let mut multiplier: String = ".".to_string();
             for i in 0..var.var.len() {
@@ -288,8 +264,6 @@ impl SumCurrent {
                 multiplier += "0";
             }
             multiplier += "1";
-            // info!("num {:?}", num);
-            // info!("multiplier {:?}", multiplier);
 
             let res_num: f64 = num.to_string().parse::<f64>().unwrap();
             let res_mul: f64 = multiplier.to_string().parse::<f64>().unwrap();
@@ -297,29 +271,22 @@ impl SumCurrent {
 
             match op.last_op {
                 1 => {
-                    // Add
                     sum.sum += res;
                 },
                 2 => {
-                    // Subtract
                     sum.sum -= res;
                 },
                 3 => {
-                    // Multiply
                     sum.sum *= res;
                 },
                 4 => {
-                    // Divide
                     sum.sum /= res;
                 },
                 _ => {}, // Handle invalid index
             }
             
-            // info!("update_sum: var.vec: {:?}", var.var);
-            // info!("update_sum: 3 Sum: {:?}", sum.sum);
 
         } else if var.decimal_index == 0 && sum.sum != 0.0 {
-            // info!("update_sum: if 4");
             let mut num: String = "".to_string();
             for i in 0..var.var.len() {
                 num += &var.var[i].to_string();
@@ -330,33 +297,21 @@ impl SumCurrent {
                 num.to_string().parse::<f64>().unwrap()
             };
 
-            // info!("op.index: {:?}", op.index);
             match op.last_op {
                 1 => {
-                    // info!("op.index: Add match");
-                    // Add
                     sum.sum += res;
                 },
                 2 => {
-                    // info!("op.index: Sub match");
-                    // Subtract
                     sum.sum -= res;
                 },
                 3 => {
-                    // info!("op.index: Mul match");
-                    // Multiply
                     sum.sum *= res;
                 },
                 4 => {
-                    // info!("op.index: Div match");
-                    // Divide
                     sum.sum /= res;
                 },
                 _ => {}, // Handle invalid index
-            }
-
-            // info!("update_sum: var.vec: {:?}", var.var);
-            // info!("update_sum: 4 Sum: {:?}", sum.sum);            
+            }        
         } else {
             info!("update_sum: var.decimal_index: Failure, below 0 or invalid.")
         }
@@ -375,13 +330,6 @@ impl SumCurrent {
         let zero: f64 = 0.0;
         sum.sum = zero;
     }
-
-    // pub fn zero(&self) -> Self {
-    //     let sum: f64 = 0.0;
-    //     SumCurrent{
-    //         sum,
-    //     }
-    // }
 
     pub fn add<T: FlexInput>(&mut self, input: T) -> Self {
         let sum: f64 = self.sum + input.to_f64();

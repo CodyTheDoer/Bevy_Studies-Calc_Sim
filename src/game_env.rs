@@ -84,42 +84,82 @@ pub fn fire_ray(
                         click_animation(&asset_server, &mut commands, *entity);
                     },
                     CalcButtons::Num0 => {
+                        if op_index.index == 6 {
+                            var.clear();
+                            op_index.index = 0;
+                        }
                         var.push(0);
                         click_animation(&asset_server, &mut commands, *entity);
                     },
                     CalcButtons::Num1 => {
+                        if op_index.index == 6 {
+                            var.clear();
+                            op_index.index = 0;
+                        }
                         var.push(1);
                         click_animation(&asset_server, &mut commands, *entity);
                     },
                     CalcButtons::Num2 => {
+                        if op_index.index == 6 {
+                            var.clear();
+                            op_index.index = 0;
+                        }
                         var.push(2);
                         click_animation(&asset_server, &mut commands, *entity);
                     },
                     CalcButtons::Num3 => {
+                        if op_index.index == 6 {
+                            var.clear();
+                            op_index.index = 0;
+                        }
                         var.push(3);
                         click_animation(&asset_server, &mut commands, *entity);
                     },
                     CalcButtons::Num4 => {
+                        if op_index.index == 6 {
+                            var.clear();
+                            op_index.index = 0;
+                        }
                         var.push(4);
                         click_animation(&asset_server, &mut commands, *entity);
                     },
                     CalcButtons::Num5 => {
+                        if op_index.index == 6 {
+                            var.clear();
+                            op_index.index = 0;
+                        }
                         var.push(5);
                         click_animation(&asset_server, &mut commands, *entity);
                     },
                     CalcButtons::Num6 => {
+                        if op_index.index == 6 {
+                            var.clear();
+                            op_index.index = 0;
+                        }
                         var.push(6);
                         click_animation(&asset_server, &mut commands, *entity);
                     },
                     CalcButtons::Num7 => {
+                        if op_index.index == 6 {
+                            var.clear();
+                            op_index.index = 0;
+                        }
                         var.push(7);
                         click_animation(&asset_server, &mut commands, *entity);
                     },
                     CalcButtons::Num8 => {
+                        if op_index.index == 6 {
+                            var.clear();
+                            op_index.index = 0;
+                        }
                         var.push(8);
                         click_animation(&asset_server, &mut commands, *entity);
                     },
                     CalcButtons::Num9 => {
+                        if op_index.index == 6 {
+                            var.clear();
+                            op_index.index = 0;
+                        }
                         var.push(9);
                         click_animation(&asset_server, &mut commands, *entity);
                     },
