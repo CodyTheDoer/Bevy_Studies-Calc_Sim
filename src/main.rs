@@ -31,28 +31,18 @@ fn main() {
         .insert_resource(SumCurrent::new())
         .insert_resource(SumVariable::new())
         .insert_resource(OpIndex::new())
-        .add_systems(
-            Startup, 
-            (
-                setup_ui,
-                spawn_gltf,
-                spawn_3d_camera,
-                setup_calc_interface_projection,
-            )
-        )
-        .add_systems(
-            Update, 
-            (
-                button_animation_system,
-                draw_cursor,
-                update_sum_text,
-                update_var_text,
-                handle_asset_events,
-                screen_albedo, 
-                update_screen_albedo.run_if(|state: Res<ScreenAlbedoState>| state.should_run()),
-                pan_orbit_camera.run_if(any_with_component::<PanOrbitState>),
-                fire_ray.run_if(input_just_released(MouseButton::Left)),
-            )
-        )
+        .add_systems(Startup, setup_ui)
+        .add_systems(Startup, spawn_gltf)
+        .add_systems(Startup, spawn_3d_camera)
+        .add_systems(Startup, setup_calc_interface_projection)
+        .add_systems(Update, button_animation_system)
+        .add_systems(Update, draw_cursor)
+        .add_systems(Update, update_sum_text)
+        .add_systems(Update, update_var_text)
+        .add_systems(Update, handle_asset_events)
+        .add_systems(Update, screen_albedo)
+        .add_systems(Update, update_screen_albedo.run_if(|state: Res<ScreenAlbedoState>| state.should_run()))
+        .add_systems(Update, pan_orbit_camera.run_if(any_with_component::<PanOrbitState>))
+        .add_systems(Update, fire_ray.run_if(input_just_released(MouseButton::Left)))
         .run();
 }

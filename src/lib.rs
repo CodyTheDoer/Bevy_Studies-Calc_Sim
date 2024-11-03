@@ -179,7 +179,7 @@ impl SumVariable {
     }
 }
 
-#[derive(Debug, Resource)]
+#[derive(Clone, Copy, Debug, Resource)]
 pub struct SumCurrent {
     pub sum: f64,
 }

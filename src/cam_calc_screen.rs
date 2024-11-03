@@ -12,21 +12,22 @@ use crate::{SumCurrent, SumVariable};
 pub struct SumText;
 
 pub fn update_sum_text(
-    sum: Res<SumCurrent>,
+    mut sum: ResMut<SumCurrent>,
+    mut var: ResMut<SumVariable>,
     mut query: Query<&mut Text, With<SumText>>,
 ) {
     if sum.is_changed() {
         // Only run this if the `sum` resource has been changed.
-        for mut text in &mut query {
-            text.sections[0].value = "Sum: ".to_owned() + &sum.sum.to_string();
-
-            // let full_sum = "Sum: ".to_owned() + &sum.sum.to_string();
-            // let mut display_limiter = full_sum
-            // while display_limiter.len() > 8 {
-            //     display_limiter.pop();
-            // }
-            // text.sections[0].value = display_limiter;
-
+        if *&sum.sum.to_string().len() > 8 {
+            for mut text in &mut query {
+                SumCurrent::zero(&mut sum);
+                var.clear();
+                text.sections[0].value = "S: Overload".to_owned();
+            }
+        } else {
+            for mut text in &mut query {
+                text.sections[0].value = "Sum: ".to_owned() + &sum.sum.to_string();
+            }
         }
     }
 }
@@ -35,7 +36,8 @@ pub fn update_sum_text(
 pub struct VarText;
 
 pub fn update_var_text(
-    var: Res<SumVariable>,
+    mut sum: ResMut<SumCurrent>,
+    mut var: ResMut<SumVariable>,
     mut query: Query<&mut Text, With<VarText>>,
 ) {
     let mut res = if var.decimal_index > 0 {
@@ -80,10 +82,23 @@ pub fn update_var_text(
         res_sum
     };
 
+    let mut display_limiter = res.to_string();
+    while display_limiter.len() > 6 {
+        display_limiter.pop();
+    }
+
     if var.is_changed() {
-        // Only run this if the recompiled `Var` resource has been changed.
-        for mut text in &mut query {
-            text.sections[0].value = "Input: ".to_owned() + &res.to_string();
+        if res.to_string().len() > 6 {
+            for mut text in &mut query {
+                SumCurrent::zero(&mut sum);
+                var.clear();
+                text.sections[0].value = "I: Overload".to_owned();
+            }
+        } else {
+            // Only run this if the recompiled `Var` resource has been changed.
+            for mut text in &mut query {
+                text.sections[0].value = "Input: ".to_owned() + &display_limiter;
+            }
         }
     }
 }
