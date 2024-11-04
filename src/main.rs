@@ -30,7 +30,6 @@ use calc_sim::game_env::{CountdownCycle, Interactable, Loaded};
 
 fn main() {
     App::new()
-        // .add_plugins(DefaultPlugins)
         .add_plugins((
             DefaultPlugins.set(WindowPlugin {
                 primary_window: Some(Window {
@@ -51,8 +50,8 @@ fn main() {
                 }),
                 ..default()
             }),
-            // LogDiagnosticsPlugin::default(),
-            // FrameTimeDiagnosticsPlugin,
+            LogDiagnosticsPlugin::default(),
+            FrameTimeDiagnosticsPlugin,
         ))
         .init_resource::<CurrentMeshColor>()
         .init_resource::<CountdownCycle>()
@@ -86,7 +85,6 @@ fn set_window_icon(
     // here we use the `image` crate to load our icon data from a png file
     // this is not a very bevy-native solution, but it will do
     let (icon_rgba, icon_width, icon_height) = {
-        // let image = image::open("icon/calc_icon.png")
         let image = image::open("assets/icon/calc_icon.png")
             .expect("Failed to open icon path")
             .into_rgba8();

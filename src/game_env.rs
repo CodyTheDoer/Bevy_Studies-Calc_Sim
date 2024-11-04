@@ -46,16 +46,12 @@ pub fn fire_ray(
     for (entity, intersection) in hits {
         if Some(interactable_query.get(*entity)).is_some() {
             let button_index = entity.index();
-            // info!("Entity Check: {:?}", &entity);
             if let Some(button) = CalcButtons::from_index(&mut op_index, button_index) {
                 match button {
                     CalcButtons::NoneButtonLightPanel => {
-                        info!("Triggered calc dim animation for NoneButtonLightPanel");
                         screen_albedo.state = 2;
                     },
                     _ => {
-                        // Handle invalid button case, if needed
-                        // info!("Fire: Invalid button press");
                     },
                 }
             } 
@@ -98,11 +94,11 @@ pub fn release_ray(
     for (entity, intersection) in hits {
         if Some(interactable_query.get(*entity)).is_some() {
             let button_index = entity.index();
-            // info!("Entity Check: {:?}", &entity);
             if let Some(button) = CalcButtons::from_index(&mut op_index, button_index) {
                 match button {
                     CalcButtons::Clear => {
                         op_index.index = 1;
+                        op_index.last_op = 0;
                         sum_calc_operations(&mut op_index, &mut var, &mut sum);
                         click_animation(&asset_server, &mut commands, *entity);
                     },
@@ -352,7 +348,7 @@ pub fn body_animation(
         target_entity: entity,
     });
     commands.spawn(AudioBundle {
-        source: asset_server.load("audio/click.mp3"),
+        source: asset_server.load("audio/tap.mp3"),
         settings: PlaybackSettings::ONCE,
     });
 }

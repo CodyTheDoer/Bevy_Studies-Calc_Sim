@@ -244,9 +244,7 @@ impl CalcButtons {
         index: u32,
     ) -> Option<CalcButtons> {
         let mut button_map = HashMap::new();
-
-        info!("Entities: {:?}", op_index.entities);
-    
+            
         button_map.insert(40 + op_index.entities, CalcButtons::Sum);
         button_map.insert(46 + op_index.entities, CalcButtons::Clear);
         button_map.insert(48 + op_index.entities, CalcButtons::Decimal);
