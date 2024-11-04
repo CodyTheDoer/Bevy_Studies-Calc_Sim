@@ -16,6 +16,7 @@ To run the project locally, clone the repository and use `cargo run`:
 git clone https://github.com/yourusername/calc_sim.git
 cd calc_sim
 cargo run
+```
 
 ### Download Pre-Baked Portable Copy
 
