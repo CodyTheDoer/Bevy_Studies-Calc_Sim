@@ -30,9 +30,9 @@ pub fn setup_ui(
     // UI Camera (2D)
     commands.spawn((
         Camera2dBundle {
-            transform: Transform::from_xyz(1000.0, 1000.0, 0.0),
+            transform: Transform::from_xyz(0.0, 0.0, 0.0),
             camera: Camera {
-                order: 1, // Render on top of the 3D scene
+                order: -1, // Render on top of the 3D scene
                 ..default()
                 },
             ..default()

@@ -146,7 +146,7 @@ pub fn setup_calc_interface_projection(
         .spawn(Camera2dBundle {
             camera: Camera {
                 // render before the "main pass" camera
-                order: -1,
+                order: -2,
                 target: RenderTarget::Image(image_handle.clone()),
                 ..default()
             },
