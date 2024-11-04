@@ -49,6 +49,64 @@ pub fn fire_ray(
             // info!("Entity Check: {:?}", &entity);
             if let Some(button) = CalcButtons::from_index(&mut op_index, button_index) {
                 match button {
+                    CalcButtons::NoneButtonBody => {
+                        info!("Triggered calc shake animation for NoneButtonBody");
+                    },
+                    CalcButtons::NoneButtonScreen => {
+                        screen_albedo.state = 1;
+                        info!("Triggered calc flicker animation for NoneButtonScreen");
+                    },
+                    CalcButtons::NoneButtonLightPanel => {
+                        info!("Triggered calc dim animation for NoneButtonLightPanel");
+                    },
+                    _ => {
+                        // Handle invalid button case, if needed
+                        info!("Invalid button press");
+                    },
+                }
+            } 
+        }
+    }
+}
+
+pub fn release_ray(
+    mut commands: Commands,
+    mut raycast: Raycast,
+    camera_query: Query<(&Camera, &GlobalTransform), With<CameraWorld>>, // Only query for the CameraWorld    
+    windows: Query<&Window>,
+    interactable_query: Query<Entity, With<Interactable>>,
+    mut sum: ResMut<SumCurrent>,
+    mut var: ResMut<SumVariable>,
+    mut op_index: ResMut<OpIndex>,
+    mut screen_albedo: ResMut<ScreenAlbedoState>,
+    asset_server: Res<AssetServer>,
+) {    
+    let (camera, camera_transform) = match camera_query.get_single() {
+        Ok(result) => result,
+        Err(_) => {
+            warn!("No CameraWorld found or multiple CameraWorlds detected.");
+            return;
+        },
+    };
+
+    let Some(cursor_position) = windows.single().cursor_position() else {
+        return;
+    };
+
+    // Calculate a ray pointing from the camera into the world based on the cursor's position.
+    let Some(ray) = camera.viewport_to_world(camera_transform, cursor_position) else {
+        return;
+    };
+
+    let hits = raycast.cast_ray(ray, &RaycastSettings::default());
+
+    // Loop through the raycast hits and detect if we hit an interactable entity
+    for (entity, intersection) in hits {
+        if Some(interactable_query.get(*entity)).is_some() {
+            let button_index = entity.index();
+            // info!("Entity Check: {:?}", &entity);
+            if let Some(button) = CalcButtons::from_index(&mut op_index, button_index) {
+                match button {
                     CalcButtons::Clear => {
                         op_index.index = 1;
                         sum_calc_operations(&mut op_index, &mut var, &mut sum);

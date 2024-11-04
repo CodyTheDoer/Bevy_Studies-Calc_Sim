@@ -19,7 +19,7 @@ use calc_sim::cam_world::{CameraWorld, PanOrbitState};
 
 use calc_sim::cam_calc_screen::{setup_calc_interface_projection, update_sum_text, update_var_text};
 
-use calc_sim::game_env::{button_animation_system, fire_ray, handle_asset_events, spawn_gltf};
+use calc_sim::game_env::{button_animation_system, fire_ray, handle_asset_events, release_ray, spawn_gltf};
 use calc_sim::game_env::{CountdownCycle, Interactable, Loaded};
 
 fn main() {
@@ -44,7 +44,8 @@ fn main() {
         .add_systems(Update, dim_while_clicked.run_if(|state: Res<ScreenAlbedoState>| state.should_run_dim()))
         .add_systems(Update, cycle_screen_albedo.run_if(|state: Res<ScreenAlbedoState>| state.should_run_cycle()))
         .add_systems(Update, pan_orbit_camera.run_if(any_with_component::<PanOrbitState>))
-        .add_systems(Update, fire_ray.run_if(input_just_released(MouseButton::Left)))
+        .add_systems(Update, release_ray.run_if(input_just_released(MouseButton::Left)))
+        .add_systems(Update, fire_ray.run_if(input_pressed(MouseButton::Left)))
         .run();
 }
 
