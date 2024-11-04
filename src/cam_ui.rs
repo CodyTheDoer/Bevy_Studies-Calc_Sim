@@ -94,41 +94,55 @@ pub fn setup_ui(
         });
     })
     .with_children(|parent| {
-        parent.spawn(TextBundle {
-            text: Text {
-                sections: vec![TextSection::new(
-                    "Sum: ".to_owned() + &sum.sum.to_string(),
-                    smaller_text_style.clone(),
-                )],
+        parent
+            .spawn(NodeBundle {
+                style: Style {
+                    position_type: PositionType::Absolute,
+                    right: Val::Percent(1.5), // Keep it on the right side of the window
+                    bottom: Val::Percent(2.0), // General area at the bottom, but will contain both texts
+                    flex_direction: FlexDirection::Column, // Stack elements vertically
+                    align_items: AlignItems::FlexEnd, // Align text to the right within the container
+                    padding: UiRect::all(Val::Px(5.0)), // Add padding to the container to avoid tight spacing
+                    ..default()
+                },
                 ..default()
-            },
-            style: Style {
-                position_type: PositionType::Absolute,
-                right: Val::Percent(1.5),
-                bottom: Val::Percent(2.0),
-                ..default()
-            },
-            ..default()
-        })
-        .insert(SumText); // Insert a marker component to easily query this later
-    })
-    .with_children(|parent| {
-        parent.spawn(TextBundle {
-            text: Text {
-                sections: vec![TextSection::new(
-                    "Input: 0",
-                    smaller_text_style.clone(),
-                )],
-                ..default()
-            },
-            style: Style {
-                position_type: PositionType::Absolute,
-                right: Val::Percent(1.5),
-                bottom: Val::Percent(5.0),
-                ..default()
-            },
-            ..default()
-        })
-        .insert(VarText); // Insert a marker component to easily query this later
+            })
+            .with_children(|parent| {    
+                // Input Text
+                parent
+                    .spawn(TextBundle {
+                        text: Text {
+                            sections: vec![TextSection::new(
+                                "Input: 0",
+                                smaller_text_style.clone(),
+                            )],
+                            ..default()
+                        },
+                        style: Style {
+                            margin: UiRect {
+                                top: Val::Px(5.0), // Add space between Sum and Input texts
+                                ..default()
+                            },
+                            ..default()
+                        },
+                        ..default()
+                    })
+                    .insert(VarText); // Insert a marker component to easily query this later
+
+                    
+                // Sum Text
+                parent
+                    .spawn(TextBundle {
+                        text: Text {
+                            sections: vec![TextSection::new(
+                                "Sum: ".to_owned() + &sum.sum.to_string(),
+                                smaller_text_style.clone(),
+                            )],
+                            ..default()
+                        },
+                        ..default()
+                    })
+                    .insert(SumText); // Insert a marker component to easily query this later
+            });
     });
 }
