@@ -222,9 +222,10 @@ pub fn release_ray(
                         screen_albedo.state = 1;
                         info!("Triggered calc flicker animation for NoneButtonScreen");
                     },
-                    // CalcButtons::NoneButtonLightPanel => {
-                    //     info!("Triggered calc dim animation for NoneButtonLightPanel");
-                    // },
+                    CalcButtons::NoneButtonLightPanel => {
+                        info!("Triggered calc dim animation for NoneButtonLightPanel");
+                        screen_albedo.state = 1;
+                    },
                     _ => {
                         // Handle invalid button case, if needed
                         // info!("Release: Invalid button press");
