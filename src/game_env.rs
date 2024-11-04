@@ -49,11 +49,9 @@ pub fn fire_ray(
             // info!("Entity Check: {:?}", &entity);
             if let Some(button) = CalcButtons::from_index(&mut op_index, button_index) {
                 match button {
-                //     CalcButtons::NoneButtonBody => {
-                //         info!("Triggered calc shake animation for NoneButtonBody");
-                //     },
                     CalcButtons::NoneButtonLightPanel => {
                         info!("Triggered calc dim animation for NoneButtonLightPanel");
+                        screen_albedo.state = 2;
                     },
                     _ => {
                         // Handle invalid button case, if needed
@@ -229,7 +227,7 @@ pub fn release_ray(
                     // },
                     _ => {
                         // Handle invalid button case, if needed
-                        info!("Release: Invalid button press");
+                        // info!("Release: Invalid button press");
                     },
                 }
             } 
@@ -324,11 +322,6 @@ pub fn body_animation_system(
     }
 }
 
-#[derive(Component)]
-pub struct WaitTimer {
-    timer: Timer,
-}
-
 pub fn body_animation(
     asset_server: &Res<AssetServer>,
     commands: &mut Commands,
@@ -337,7 +330,7 @@ pub fn body_animation(
     commands.entity(entity).insert(MeshAnimation {
         progress: 0.0,
         duration: 0.125,
-        initial_scale: Vec3::new(1.06, 1.06, 1.06),
+        initial_scale: Vec3::new(1.02, 1.02, 1.02),
         target_scale: Vec3::ONE,
         target_entity: entity, // Use the current entity ID
     });
@@ -383,15 +376,6 @@ pub fn click_animation(
     });
 }
 
-#[derive(Component)] 
-pub struct MeshAnimation {
-    progress: f32,
-    duration: f32,
-    initial_scale: Vec3,
-    target_scale: Vec3,
-    target_entity: Entity,
-}
-
 #[derive(Resource)]
 pub struct CountdownCycle {
     pub timer: Timer,           // Set single timer for countdown
@@ -426,6 +410,15 @@ pub struct Interactable;
 #[derive(Component)]
 pub struct Loaded;
 
+#[derive(Component)] 
+pub struct MeshAnimation {
+    progress: f32,
+    duration: f32,
+    initial_scale: Vec3,
+    target_scale: Vec3,
+    target_entity: Entity,
+}
+
 #[derive(Resource)]
 pub struct TargetEntity {
     target_entity: u32,
@@ -438,4 +431,9 @@ impl TargetEntity {
             target_entity,
         }
     }
+}
+
+#[derive(Component)]
+pub struct WaitTimer {
+    timer: Timer,
 }
