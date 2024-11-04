@@ -19,7 +19,7 @@ use calc_sim::cam_world::{CameraWorld, PanOrbitState};
 
 use calc_sim::cam_calc_screen::{setup_calc_interface_projection, update_sum_text, update_var_text};
 
-use calc_sim::game_env::{button_animation_system, fire_ray, handle_asset_events, release_ray, spawn_gltf};
+use calc_sim::game_env::{button_animation_system, fire_ray, handle_asset_events, release_ray, body_animation_system, spawn_gltf};
 use calc_sim::game_env::{CountdownCycle, Interactable, Loaded};
 
 fn main() {
@@ -36,6 +36,7 @@ fn main() {
         .add_systems(Startup, spawn_3d_camera)
         .add_systems(Startup, setup_calc_interface_projection)
         .add_systems(Update, button_animation_system)
+        .add_systems(Update, body_animation_system)
         .add_systems(Update, draw_cursor)
         .add_systems(Update, update_sum_text)
         .add_systems(Update, update_var_text)

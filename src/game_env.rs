@@ -49,19 +49,15 @@ pub fn fire_ray(
             // info!("Entity Check: {:?}", &entity);
             if let Some(button) = CalcButtons::from_index(&mut op_index, button_index) {
                 match button {
-                    CalcButtons::NoneButtonBody => {
-                        info!("Triggered calc shake animation for NoneButtonBody");
-                    },
-                    CalcButtons::NoneButtonScreen => {
-                        screen_albedo.state = 1;
-                        info!("Triggered calc flicker animation for NoneButtonScreen");
-                    },
+                //     CalcButtons::NoneButtonBody => {
+                //         info!("Triggered calc shake animation for NoneButtonBody");
+                //     },
                     CalcButtons::NoneButtonLightPanel => {
                         info!("Triggered calc dim animation for NoneButtonLightPanel");
                     },
                     _ => {
                         // Handle invalid button case, if needed
-                        info!("Invalid button press");
+                        // info!("Fire: Invalid button press");
                     },
                 }
             } 
@@ -222,18 +218,18 @@ pub fn release_ray(
                         click_animation(&asset_server, &mut commands, *entity);
                     },
                     CalcButtons::NoneButtonBody => {
-                        info!("Triggered calc shake animation for NoneButtonBody");
+                        body_animation(&asset_server, &mut commands, *entity);
                     },
                     CalcButtons::NoneButtonScreen => {
                         screen_albedo.state = 1;
                         info!("Triggered calc flicker animation for NoneButtonScreen");
                     },
-                    CalcButtons::NoneButtonLightPanel => {
-                        info!("Triggered calc dim animation for NoneButtonLightPanel");
-                    },
+                    // CalcButtons::NoneButtonLightPanel => {
+                    //     info!("Triggered calc dim animation for NoneButtonLightPanel");
+                    // },
                     _ => {
                         // Handle invalid button case, if needed
-                        info!("Invalid button press");
+                        info!("Release: Invalid button press");
                     },
                 }
             } 
@@ -310,9 +306,9 @@ pub fn handle_asset_events(
     }
 }
 
-pub fn button_animation_system(
+pub fn body_animation_system(
     time: Res<Time>,
-    mut query: Query<(&mut Transform, &mut ButtonAnimation)>,
+    mut query: Query<(&mut Transform, &mut MeshAnimation)>,
     mut commands: Commands,
 ) {
     for (mut transform, mut animation) in query.iter_mut() {
@@ -323,7 +319,48 @@ pub fn button_animation_system(
 
         if factor >= 1.0 {
             // Remove the animation component once the animation is complete
-            commands.entity(animation.target_entity).remove::<ButtonAnimation>();
+            commands.entity(animation.target_entity).remove::<MeshAnimation>();
+        }
+    }
+}
+
+#[derive(Component)]
+pub struct WaitTimer {
+    timer: Timer,
+}
+
+pub fn body_animation(
+    asset_server: &Res<AssetServer>,
+    commands: &mut Commands,
+    entity: Entity,
+) {
+    commands.entity(entity).insert(MeshAnimation {
+        progress: 0.0,
+        duration: 0.125,
+        initial_scale: Vec3::new(1.06, 1.06, 1.06),
+        target_scale: Vec3::ONE,
+        target_entity: entity, // Use the current entity ID
+    });
+    commands.spawn(AudioBundle {
+        source: asset_server.load("audio/click.mp3"),
+        settings: PlaybackSettings::ONCE,
+    });
+}
+
+pub fn button_animation_system(
+    time: Res<Time>,
+    mut query: Query<(&mut Transform, &mut MeshAnimation)>,
+    mut commands: Commands,
+) {
+    for (mut transform, mut animation) in query.iter_mut() {
+        animation.progress += time.delta_seconds();
+
+        let factor = (animation.progress / animation.duration).min(1.0);
+        transform.scale = animation.initial_scale.lerp(animation.target_scale, factor);
+
+        if factor >= 1.0 {
+            // Remove the animation component once the animation is complete
+            commands.entity(animation.target_entity).remove::<MeshAnimation>();
         }
     }
 }
@@ -333,14 +370,7 @@ pub fn click_animation(
     commands: &mut Commands,
     entity: Entity,
 ) {
-    commands.entity(entity).insert(ButtonAnimation {
-        progress: 0.0,
-        duration: 0.1,
-        initial_scale: Vec3::ONE,
-        target_scale: Vec3::new(1.0, 0.88, 1.0),
-        target_entity: entity, // Use the current entity ID
-    });
-    commands.entity(entity).insert(ButtonAnimation {
+    commands.entity(entity).insert(MeshAnimation {
         progress: 0.0,
         duration: 0.18,
         initial_scale: Vec3::new(1.0, 0.88, 1.0),
@@ -354,7 +384,7 @@ pub fn click_animation(
 }
 
 #[derive(Component)] 
-pub struct ButtonAnimation {
+pub struct MeshAnimation {
     progress: f32,
     duration: f32,
     initial_scale: Vec3,
