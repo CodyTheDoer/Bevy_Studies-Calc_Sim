@@ -219,16 +219,17 @@ pub fn release_ray(
                         body_animation(&asset_server, &mut commands, *entity);
                     },
                     CalcButtons::NoneButtonScreen => {
-                        screen_albedo.state = 1;
-                        info!("Triggered calc flicker animation for NoneButtonScreen");
+                        let color_count = MeshColor::VARIANT_COUNT;
+                        if op_index.screen_color >= color_count {
+                            op_index.screen_color = 0;
+                        } else {
+                            op_index.screen_color += 1;
+                        }
                     },
                     CalcButtons::NoneButtonLightPanel => {
-                        info!("Triggered calc dim animation for NoneButtonLightPanel");
                         screen_albedo.state = 1;
                     },
                     _ => {
-                        // Handle invalid button case, if needed
-                        // info!("Release: Invalid button press");
                     },
                 }
             } 
