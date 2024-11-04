@@ -107,6 +107,9 @@ pub fn release_ray(
                         click_animation(&asset_server, &mut commands, *entity);
                     },
                     CalcButtons::Decimal => {
+                        if var.var.len() == 0 {
+                            var.push(0);
+                        }
                         var.decimal();
                         click_animation(&asset_server, &mut commands, *entity);
                     },
@@ -252,7 +255,7 @@ pub fn spawn_gltf(
         scene: gltf,
         ..Default::default()
     })
-    .insert(Interactable); // Custom marker to identify this as interactable
+    .insert(Interactable); 
 
     // Circular plane
     commands.spawn((
@@ -288,6 +291,13 @@ pub fn spawn_gltf(
         font_size: 25.0,
         ..default()
     };
+}
+
+pub fn dim_while_clicked(
+    screen: Res<ScreenAlbedoState>,
+    mut op_index: ResMut<OpIndex>,
+) {
+    op_index.screen_color = 5;
 }
 
 pub fn handle_asset_events(
@@ -334,7 +344,7 @@ pub fn body_animation(
         duration: 0.125,
         initial_scale: Vec3::new(1.02, 1.02, 1.02),
         target_scale: Vec3::ONE,
-        target_entity: entity, // Use the current entity ID
+        target_entity: entity,
     });
     commands.spawn(AudioBundle {
         source: asset_server.load("audio/click.mp3"),
@@ -370,7 +380,7 @@ pub fn click_animation(
         duration: 0.18,
         initial_scale: Vec3::new(1.0, 0.88, 1.0),
         target_scale: Vec3::ONE,
-        target_entity: entity, // Use the current entity ID
+        target_entity: entity,
     });
     commands.spawn(AudioBundle {
         source: asset_server.load("audio/click.mp3"),

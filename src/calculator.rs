@@ -182,7 +182,9 @@ pub enum MeshColor { // If changed update VARIANT_COUNT
 }
 
 impl MeshColor {
-    pub const VARIANT_COUNT: u32 = 4;
+    pub const VARIANT_COUNT: u32 = 4; 
+    // The VARIENT_COUNT is indexed logic.
+    // black is not accounted for here, as it is not an active display color.
 }
 
 #[derive(Resource)]

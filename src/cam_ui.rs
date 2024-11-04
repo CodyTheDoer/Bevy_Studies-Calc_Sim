@@ -1,7 +1,7 @@
 use bevy::{color::palettes::css::*, sprite::Anchor, text::{BreakLineOn, Text2dBounds}};  
 use bevy::prelude::*;
 
-use crate::{OpIndex, SumCurrent, SumVariable};
+use crate::{OpIndex, SumCurrent};
 
 use crate::cam_calc_screen::{SumText, VarText};
 

@@ -26,8 +26,6 @@ pub fn spawn_3d_camera(
         camera,
         CameraWorld,
     ));
-    
-    // op_index.add_entity();
 }
 
 // Bundle to spawn our custom camera easily
