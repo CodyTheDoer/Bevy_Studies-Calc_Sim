@@ -20,6 +20,5 @@ cargo run
 ### Download Pre-Baked Portable Copy
 
 If you just want to try the app without building it, you can download a precompiled version:
-<a name="DownloadPortableVersion"></a>
 
-[versions/CalcSim_V0_1_portable.zip](#DownloadPortableVersion)
+[Download Portable Version](versions/CalcSim_V0_1_portable.zip)
