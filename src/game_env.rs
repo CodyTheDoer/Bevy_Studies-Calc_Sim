@@ -106,7 +106,11 @@ pub fn release_ray(
                         sum_calc_operations(&mut op_index, &mut var, &mut sum);
                         click_animation(&asset_server, &mut commands, *entity);
                     },
-                    CalcButtons::Decimal => {
+                    CalcButtons::Decimal => {                        
+                        if op_index.index == 6 {
+                            var.clear();
+                            op_index.index = 0;
+                        }
                         if var.var.len() == 0 {
                             var.push(0);
                         }

@@ -5,7 +5,10 @@ use bevy::{prelude::*,
     input::common_conditions::*,
     pbr::{CascadeShadowConfigBuilder, DirectionalLightShadowMap},
     window::{CursorGrabMode, PresentMode, WindowLevel, WindowTheme},
+    winit::WinitWindows,
 };
+
+use winit::window::Icon;
 
 use bevy_mod_raycast::prelude::*;
 
@@ -33,7 +36,7 @@ fn main() {
                 primary_window: Some(Window {
                     title: "Calculator Simulator".into(),
                     name: Some("bevy.app".into()),
-                    resolution: (500., 300.).into(),
+                    resolution: (1280., 720.).into(),
                     resizable: true,
                     enabled_buttons: bevy::window::EnabledButtons {
                         maximize: true,
@@ -43,16 +46,13 @@ fn main() {
                     // Tells wasm not to override default event handling, like F5, Ctrl+R etc.
                     prevent_default_event_handling: false,
                     window_theme: Some(WindowTheme::Dark),
-                    // This will spawn an invisible window
-                    // The window will be made visible in the make_visible() system after 3 frames.
-                    // This is useful when you want to avoid the white window that shows up before the GPU is ready to render the app.
                     visible: true,
                     ..default()
                 }),
                 ..default()
             }),
-            LogDiagnosticsPlugin::default(),
-            FrameTimeDiagnosticsPlugin,
+            // LogDiagnosticsPlugin::default(),
+            // FrameTimeDiagnosticsPlugin,
         ))
         .init_resource::<CurrentMeshColor>()
         .init_resource::<CountdownCycle>()
@@ -60,6 +60,7 @@ fn main() {
         .insert_resource(SumCurrent::new())
         .insert_resource(SumVariable::new())
         .insert_resource(OpIndex::new())
+        .add_systems(Startup, set_window_icon)
         .add_systems(Startup, setup_ui)
         .add_systems(Startup, spawn_gltf)
         .add_systems(Startup, spawn_3d_camera)
@@ -77,4 +78,26 @@ fn main() {
         .add_systems(Update, release_ray.run_if(input_just_released(MouseButton::Left)))
         .add_systems(Update, fire_ray.run_if(input_pressed(MouseButton::Left)))
         .run();
+}
+
+fn set_window_icon(
+    windows: NonSend<WinitWindows>,
+) {
+    // here we use the `image` crate to load our icon data from a png file
+    // this is not a very bevy-native solution, but it will do
+    let (icon_rgba, icon_width, icon_height) = {
+        // let image = image::open("icon/calc_icon.png")
+        let image = image::open("assets/icon/calc_icon.png")
+            .expect("Failed to open icon path")
+            .into_rgba8();
+        let (width, height) = image.dimensions();
+        let rgba = image.into_raw();
+        (rgba, width, height)
+    };
+    let icon = Icon::from_rgba(icon_rgba, icon_width, icon_height).unwrap();
+
+    // do it for all windows
+    for window in windows.windows.values() {
+        window.set_window_icon(Some(icon.clone()));
+    }
 }
