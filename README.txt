@@ -21,4 +21,4 @@ cargo run
 
 If you just want to try the app without building it, you can download a precompiled version:
 
-[Download Portable Version](versions/'CalcSim v0.1 portable.zip')
+[Download Portable Version](versions/CalcSim_V0_1_portable.zip)
