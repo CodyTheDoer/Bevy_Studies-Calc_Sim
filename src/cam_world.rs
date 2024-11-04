@@ -6,14 +6,12 @@ use std::f32::consts::{FRAC_PI_2, PI, TAU};
 use bevy_mod_raycast::prelude::*;
 
 use crate::game_env::Ground;
-use crate::OpIndex;
 
 #[derive(Component)]
 pub struct CameraWorld;
 
 pub fn spawn_3d_camera(
     mut commands: Commands,
-    // op_index: &mut ResMut<OpIndex>,
 ) {
     let mut camera = PanOrbitCameraBundle::default();
     // Position our camera using our component,

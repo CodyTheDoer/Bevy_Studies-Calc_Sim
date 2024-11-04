@@ -40,7 +40,7 @@ pub fn update_var_text(
     mut var: ResMut<SumVariable>,
     mut query: Query<&mut Text, With<VarText>>,
 ) {
-    let mut res = if var.decimal_index > 0 {
+    let res = if var.decimal_index > 0 {
         let mut num: String = "".to_string();
         let mut multiplier: String = ".".to_string();
         
@@ -105,7 +105,6 @@ pub fn update_var_text(
 
 pub fn setup_calc_interface_projection(
     mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut images: ResMut<Assets<Image>>,
     asset_server: Res<AssetServer>,

@@ -1,32 +1,26 @@
 use bevy::{prelude::*,
-    core::FrameCount,
     diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
-    asset::{AssetEvent, Assets, Handle},
     input::common_conditions::*,
-    pbr::{CascadeShadowConfigBuilder, DirectionalLightShadowMap},
-    window::{CursorGrabMode, PresentMode, WindowLevel, WindowTheme},
+    window::{PresentMode, WindowTheme},
     winit::WinitWindows,
 };
 
 use winit::window::Icon;
 
-use bevy_mod_raycast::prelude::*;
-
-use calc_sim::{FlexInput, OpIndex, SumCurrent, SumVariable};
+use calc_sim::{OpIndex, SumCurrent, SumVariable};
 
 use calc_sim::calculator::{cycle_screen_albedo, screen_albedo};
-use calc_sim::calculator::{CalcButtons, CurrentMeshColor, MeshColor, ScreenAlbedoState};
+use calc_sim::calculator::{CurrentMeshColor, ScreenAlbedoState};
 
 use calc_sim::cam_ui::setup_ui;
-use calc_sim::cam_ui::CameraUi;
 
 use calc_sim::cam_world::{draw_cursor, pan_orbit_camera, spawn_3d_camera};
-use calc_sim::cam_world::{CameraWorld, PanOrbitState};
+use calc_sim::cam_world::PanOrbitState;
 
 use calc_sim::cam_calc_screen::{setup_calc_interface_projection, update_sum_text, update_var_text};
 
 use calc_sim::game_env::{button_animation_system, dim_while_clicked, fire_ray, handle_asset_events, release_ray, body_animation_system, spawn_gltf};
-use calc_sim::game_env::{CountdownCycle, Interactable, Loaded};
+use calc_sim::game_env::CountdownCycle;
 
 fn main() {
     App::new()

@@ -24,7 +24,7 @@ pub fn cycle_screen_albedo(
 pub fn screen_albedo(
     time: Res<Time>, 
     mut countdown: ResMut<CountdownCycle>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
+    materials: ResMut<Assets<StandardMaterial>>,
     children_query: Query<&Children>,
     material_query: Query<&Handle<StandardMaterial>>,
     color_change_query: Query<(Entity, &Handle<Scene>), (With<Interactable>, With<Loaded>)>,
@@ -146,7 +146,6 @@ impl CurrentMeshColor {
             if child.index() == 62 + op_index.entities {
                 if let Ok(material_handle) = material_query.get(child) {
                     if let Some(material) = materials.get_mut(material_handle) {
-                        let new_color = CurrentMeshColor::update_current_mesh_color(op_index);
                         material.base_color = CurrentMeshColor::update_current_mesh_color(op_index);
                         material.base_color_texture = Some(calc_ui_material.image_handle.clone());
                     } else {
@@ -244,7 +243,7 @@ impl CalcButtons {
         index: u32,
     ) -> Option<CalcButtons> {
         let mut button_map = HashMap::new();
-            
+
         button_map.insert(40 + op_index.entities, CalcButtons::Sum);
         button_map.insert(46 + op_index.entities, CalcButtons::Clear);
         button_map.insert(48 + op_index.entities, CalcButtons::Decimal);

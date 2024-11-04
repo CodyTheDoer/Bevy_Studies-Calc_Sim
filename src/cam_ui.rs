@@ -1,7 +1,6 @@
-use bevy::{color::palettes::css::*, sprite::Anchor, text::{BreakLineOn, Text2dBounds}};  
 use bevy::prelude::*;
 
-use crate::{OpIndex, SumCurrent};
+use crate::SumCurrent;
 
 use crate::cam_calc_screen::{SumText, VarText};
 
@@ -13,7 +12,6 @@ pub fn setup_ui(
     mut commands: Commands, 
     asset_server: Res<AssetServer>,
     sum: Res<SumCurrent>,
-    // op_index: &mut ResMut<OpIndex>,
 ) {
     let font = asset_server.load("fonts/MatrixtypeDisplay-KVELZ.ttf");
     let text_style = TextStyle {

@@ -14,7 +14,7 @@ pub fn sum_calc_operations(
     if let Some(call) = CalcOperations::from_index(op.index) {
         match call {
             CalcOperations::Init => {
-                SumCurrent::update_sum(var, &call, sum, op);
+                SumCurrent::update_sum(var, sum, op);
             },
             CalcOperations::Clear => {
                 SumCurrent::zero(sum);
@@ -41,7 +41,7 @@ pub fn sum_calc_operations(
                 var.clear();
             },
             CalcOperations::Sum => {
-                SumCurrent::update_sum(var, &call, sum, op);
+                SumCurrent::update_sum(var, sum, op);
             },
         }
     }
@@ -220,7 +220,6 @@ impl SumCurrent {
 
     pub fn update_sum(
         var: &mut ResMut<SumVariable>,
-        call: &CalcOperations,
         sum: &mut ResMut<SumCurrent>,
         op: &mut ResMut<OpIndex>,
     ) { // rebuild vec from SumVariable into f64 and pass it into the sum with maths if applicable

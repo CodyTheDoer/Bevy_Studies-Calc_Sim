@@ -3,25 +3,18 @@ use bevy::ecs::event::EventReader;
 
 use bevy_mod_raycast::prelude::*;
 
-use std::collections::HashMap;
-
 use crate::calculator::{CalcButtons, MeshColor, ScreenAlbedoState};
 use crate::cam_world::CameraWorld;
-use crate::cam_calc_screen::CalcUIMaterialHandle;
 use crate::{sum_calc_operations};
 use crate::{OpIndex, SumCurrent, SumVariable};
 
 pub fn fire_ray(
-    mut commands: Commands,
     mut raycast: Raycast,
     camera_query: Query<(&Camera, &GlobalTransform), With<CameraWorld>>, // Only query for the CameraWorld    
     windows: Query<&Window>,
     interactable_query: Query<Entity, With<Interactable>>,
-    mut sum: ResMut<SumCurrent>,
-    mut var: ResMut<SumVariable>,
     mut op_index: ResMut<OpIndex>,
     mut screen_albedo: ResMut<ScreenAlbedoState>,
-    asset_server: Res<AssetServer>,
 ) {    
     let (camera, camera_transform) = match camera_query.get_single() {
         Ok(result) => result,
@@ -43,7 +36,7 @@ pub fn fire_ray(
     let hits = raycast.cast_ray(ray, &RaycastSettings::default());
 
     // Loop through the raycast hits and detect if we hit an interactable entity
-    for (entity, intersection) in hits {
+    for (entity, _intersection) in hits {
         if Some(interactable_query.get(*entity)).is_some() {
             let button_index = entity.index();
             if let Some(button) = CalcButtons::from_index(&mut op_index, button_index) {
@@ -91,7 +84,7 @@ pub fn release_ray(
     let hits = raycast.cast_ray(ray, &RaycastSettings::default());
 
     // Loop through the raycast hits and detect if we hit an interactable entity
-    for (entity, intersection) in hits {
+    for (entity, _intersection) in hits {
         if Some(interactable_query.get(*entity)).is_some() {
             let button_index = entity.index();
             if let Some(button) = CalcButtons::from_index(&mut op_index, button_index) {
@@ -233,8 +226,6 @@ pub fn release_ray(
                     CalcButtons::NoneButtonLightPanel => {
                         screen_albedo.state = 1;
                     },
-                    _ => {
-                    },
                 }
             } 
         }
@@ -246,7 +237,6 @@ pub fn spawn_gltf(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     ass: Res<AssetServer>,
-    sum: Res<SumCurrent>,
     mut op_index: ResMut<OpIndex>,
 ) {
     let gltf = ass.load("calculator.glb#Scene0"); // Screen text is set in calculator.rs via CurrentMeshColor::process_entity_children
@@ -280,22 +270,9 @@ pub fn spawn_gltf(
         ..default()
     });
     op_index.add_entity();
-
-    let font = ass.load("fonts/MatrixtypeDisplay-KVELZ.ttf");
-    let text_style = TextStyle {
-        font: font.clone(),
-        font_size: 42.0,
-        ..default()
-    };
-    let smaller_text_style = TextStyle {
-        font: font.clone(),
-        font_size: 25.0,
-        ..default()
-    };
 }
 
 pub fn dim_while_clicked(
-    screen: Res<ScreenAlbedoState>,
     mut op_index: ResMut<OpIndex>,
 ) {
     op_index.screen_color = 5;
@@ -430,23 +407,4 @@ pub struct MeshAnimation {
     initial_scale: Vec3,
     target_scale: Vec3,
     target_entity: Entity,
-}
-
-#[derive(Resource)]
-pub struct TargetEntity {
-    target_entity: u32,
-}
-
-impl TargetEntity {
-    pub fn new() -> Self {
-        let target_entity: u32 = 0;
-        TargetEntity {
-            target_entity,
-        }
-    }
-}
-
-#[derive(Component)]
-pub struct WaitTimer {
-    timer: Timer,
 }
