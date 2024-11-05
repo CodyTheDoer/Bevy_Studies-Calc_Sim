@@ -23,8 +23,8 @@ use calc_sim::game_env::{button_animation_system, dim_while_clicked, fire_ray, h
 use calc_sim::game_env::CountdownCycle;
 
 fn main() {
-    App::new()
-        .add_plugins((
+    let mut app = App::new();
+        app.add_plugins((
             DefaultPlugins.set(WindowPlugin {
                 primary_window: Some(Window {
                     title: "Calculator Simulator".into(),
@@ -69,8 +69,8 @@ fn main() {
         .add_systems(Update, cycle_screen_albedo.run_if(|state: Res<ScreenAlbedoState>| state.should_run_cycle()))
         .add_systems(Update, pan_orbit_camera.run_if(any_with_component::<PanOrbitState>))
         .add_systems(Update, release_ray.run_if(input_just_released(MouseButton::Left)))
-        .add_systems(Update, fire_ray.run_if(input_pressed(MouseButton::Left)))
-        .run();
+        .add_systems(Update, fire_ray.run_if(input_pressed(MouseButton::Left)));
+        app.run();
 }
 
 fn set_window_icon(
