@@ -1,6 +1,6 @@
 # Calculator Simulator
 
-This project is my personal learning space for building a functional Bevy app. It is a work-in-progress where I experiment.
+This project is my personal learning space for building a simple functional Bevy app.
 
 ![Screenshot of Calculator Simulator running.](./assets/images/in_sim.png)
 
