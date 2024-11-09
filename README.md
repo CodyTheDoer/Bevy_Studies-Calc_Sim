@@ -15,7 +15,7 @@ This project is my personal learning space for building a simple functional Bevy
 To run the project locally, clone the repository and use `cargo run`:
 
 ```sh
-git clone https://github.com/yourusername/calc_sim.git
+git clone https://github.com/CodyTheDoer/calc_sim.git
 cd calc_sim
 cargo run
 ```
